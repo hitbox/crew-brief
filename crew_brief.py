@@ -8,7 +8,17 @@ import zipfile
 
 from operator import itemgetter
 
+import jinja2
+import openpyxl
+
 NAME = os.path.splitext(os.path.basename(__file__))[0]
+
+template_env = jinja2.Environment(
+    loader = jinja2.FileSystemLoader(
+        'templates',
+    ),
+    autoescape = jinja2.select_autoescape(),
+)
 
 class Glob:
 
@@ -66,21 +76,36 @@ class UserFriendlyCrewBrief:
         instance = cls(sources, members)
         return instance
 
-    def __call__(self):
+    def iter_zip_paths(self):
         for source in self.sources:
             for zip_path in source:
-                with zipfile.ZipFile(zip_path) as zip_file:
-                    for member_name in zip_file.namelist():
-                        for member_pattern in self.members:
-                            if member_pattern.match(member_name):
-                                with zip_file.open(member_name) as member_file:
-                                    from pprint import pprint
-                                    member_json = member_file.read()
-                                    member_data = json.loads(member_json)
-                                    user_events = UserEvents(member_data)
-                                    rows = user_events.to_rows()
-                                    pprint(rows)
-                                    raise
+                yield zip_path
+
+    def iter_zip_members(self, zip_file):
+        for member_name in zip_file.namelist():
+            for member_pattern in self.members:
+                if member_pattern.match(member_name):
+                    yield member_name
+
+    def __call__(self):
+        html_template = template_env.get_template('crew_brief_table.html')
+        for zip_path in self.iter_zip_paths():
+            with zipfile.ZipFile(zip_path) as zip_file:
+                import sys
+                print(zip_path, file=sys.stderr)
+                for member_name in self.iter_zip_members(zip_file):
+                    with zip_file.open(member_name) as member_file:
+                        from pprint import pprint
+                        member_json = member_file.read()
+                        member_data = json.loads(member_json)
+                        if 'eventDetails' in member_data and member_data['eventDetails']:
+                            html = html_template.render(**member_data)
+                            print(html)
+                            raise
+                        #user_events = UserEvents(member_data)
+                        #rows = user_events.to_rows()
+                        #pprint(rows)
+                        #raise
 
 
 def instance_from_config(cp, secname, prefix, globals=None, locals=None):

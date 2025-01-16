@@ -1,0 +1,33 @@
+<html>
+    <head>
+<style>
+    font-family: sans-serif;
+</style>
+    </head>
+    <body>
+        <table>
+            <thead>
+                <tr>
+                    <th>eventTimeStamp</th>
+                    <th>status</th>
+                    <th>eventType</th>
+                    <th>eventDetails</th>
+                </tr>
+            </thead>
+            <tbody>{% for user_event in userEvents %}
+                <tr>
+                    <td>{{ user_event.eventTimeStamp }}</td>
+                    <td>{{ user_event.status }}</td>
+                    <td>{{ user_event.eventType }}</td>
+                    {% if user_event.event_detail %}
+                    {% for key, val in user_event.event_detail %}
+                        <td>{{ val }}</td>
+                    {% endfor %}
+                {% else %}
+                    <td>(No event details)</td>
+                {% endif %}
+                </tr>{% endfor %}
+            </tbody>
+        </table>
+    </body>
+</html>

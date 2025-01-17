@@ -1,33 +1,63 @@
+{%- from "render.html" import render_crew_brief -%}
+
+
 <html>
     <head>
-<style>
+        <style>
+/* Apply border-box globally */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+body {
     font-family: sans-serif;
-</style>
+    padding: 0 1rem;
+}
+
+pre {
+    white-space: pre-wrap;
+}
+
+dl {
+    display: grid;
+    grid-template-columns: auto auto;
+    grid-gap: 4px;
+    width: fit-content;
+}
+
+dd {
+    margin: 0;
+}
+
+.value {
+    white-space: nowrap;
+}
+
+.not-success {
+    color: white;
+    background-color: red;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+table, th, td {
+    border: 1px solid;
+    margin: 0;
+    padding: 0;
+}
+
+td, th {
+    vertical-align: top;
+    padding: 4px; 8px;
+}
+        </style>
     </head>
     <body>
-        <table>
-            <thead>
-                <tr>
-                    <th>eventTimeStamp</th>
-                    <th>status</th>
-                    <th>eventType</th>
-                    <th>eventDetails</th>
-                </tr>
-            </thead>
-            <tbody>{% for user_event in userEvents %}
-                <tr>
-                    <td>{{ user_event.eventTimeStamp }}</td>
-                    <td>{{ user_event.status }}</td>
-                    <td>{{ user_event.eventType }}</td>
-                    {% if user_event.event_detail %}
-                    {% for key, val in user_event.event_detail %}
-                        <td>{{ val }}</td>
-                    {% endfor %}
-                {% else %}
-                    <td>(No event details)</td>
-                {% endif %}
-                </tr>{% endfor %}
-            </tbody>
-        </table>
+        {% for crew_brief_data in crew_briefs %}{{ render_crew_brief(**crew_brief_data) }}{% endfor %}
     </body>
 </html>

@@ -1,0 +1,92 @@
+{% set mapping_table_threshold = 1 %}
+
+
+{% macro dispatch_value(val) %}
+    {% if val is mapping %}
+        {% if val|length > mapping_table_threshold %}
+            {{ render_table(val) }}
+        {% else %}
+            {{ render_definition_list(val) }}
+        {% endif %}
+    {% elif val is sequence and val is not string %}
+        {{ render_list(val) }}
+    {% else %}
+        {{ render_value(val) }}
+    {% endif %}
+{% endmacro %}
+
+
+{% macro render_value(val) %}
+    <span class="value">{{ val }}</span>
+{% endmacro %}
+
+
+{% macro render_table(data) %}
+<table>
+    <thead>
+        <tr>{% for key, _ in data|dictsort %}
+            <th>{{ key }}</th>{% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        <tr>{% for _, val in data|dictsort %}
+            <td>{{ dispatch_value(val) }}</td>
+        {% endfor %}</tr>
+    </tbody>
+</table>
+{% endmacro %}
+
+
+{% macro render_list(data) %}
+<ul>{% for val in data %}<li>{{ dispatch_value(val) }}</li>{% endfor %}</ul>
+{% endmacro %}
+
+
+{% macro render_definition_list(data) %}
+<dl>{% for key, val in data|items %}<dt>{{ render_value(key) }}</dt><dd>{{ dispatch_value(val) }}</dd>{% endfor %}</dl>
+{% endmacro %}
+
+
+{% macro render_crew_brief(zip_path, zip_namelist, member_name, member_data, show_data=false) %}
+    <div>
+        <h3>{{ zip_path }}</h3>
+        <ul>{% for name in zip_namelist %}
+            <li>{{ name }}</li>{% endfor %}
+        </ul>
+        <h3>{{ member_name }}</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>legIdentifier</th>
+                    <th>userId</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{{ render_value(member_data.legIdentifier) }}</td>
+                    <td>{{ render_value(member_data.userId) }}</td>
+                </tr>
+            </tbody>
+        </table>
+        <h1>userEvents</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>eventTimeStamp</th>
+                    <th>status</th>
+                    <th>eventType</th>
+                    <th>eventDetails</th>
+                </tr>
+            </thead>
+            <tbody>{% for user_event in member_data.userEvents %}
+                <tr{% if user_event.status != 'success' %} class="not-success"{% endif %}>
+                    <td>{{ render_value(user_event.eventTimeStamp) }}</td>
+                    <td>{{ render_value(user_event.status) }}</td>
+                    <td>{{ render_value(user_event.eventType) }}</td>
+                    <td>{% if user_event.eventDetails %}{{ dispatch_value(user_event.eventDetails) }}{% endif %}</td>
+                </tr>{% endfor %}
+            </tbody>
+        </table>
+        {% if show_data %}<pre>{{ userEvents }}</pre>{% endif %}
+    </div>
+{% endmacro %}

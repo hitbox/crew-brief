@@ -89,24 +89,32 @@ class UserFriendlyCrewBrief:
 
     def __call__(self):
         html_template = template_env.get_template('crew_brief_table.html')
+
+        crew_briefs = []
         for zip_path in self.iter_zip_paths():
+            if len(crew_briefs) > 20:
+                break
             with zipfile.ZipFile(zip_path) as zip_file:
-                import sys
-                print(zip_path, file=sys.stderr)
                 for member_name in self.iter_zip_members(zip_file):
                     with zip_file.open(member_name) as member_file:
-                        from pprint import pprint
                         member_json = member_file.read()
                         member_data = json.loads(member_json)
-                        if 'eventDetails' in member_data and member_data['eventDetails']:
-                            html = html_template.render(**member_data)
-                            print(html)
-                            raise
-                        #user_events = UserEvents(member_data)
-                        #rows = user_events.to_rows()
-                        #pprint(rows)
-                        #raise
+                        template_context = dict(
+                            zip_namelist = zip_file.namelist(),
+                            zip_path = zip_path,
+                            member_name = member_name,
+                            member_data = member_data,
+                            show_data = False,
+                        )
+                        crew_briefs.append(template_context)
+        html = html_template.render(crew_briefs=crew_briefs)
+        print(html)
 
+def has_event_details(crew_brief_data):
+    if 'userEvents' in crew_brief_data:
+        for user_event in crew_brief_data['userEvents']:
+            if 'eventDetails' in user_event:
+                return True
 
 def instance_from_config(cp, secname, prefix, globals=None, locals=None):
     """

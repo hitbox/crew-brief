@@ -3,61 +3,11 @@
 
 <html>
     <head>
-        <style>
-/* Apply border-box globally */
-*,
-*::before,
-*::after {
-    box-sizing: border-box;
-}
-
-body {
-    font-family: sans-serif;
-    padding: 0 1rem;
-}
-
-pre {
-    white-space: pre-wrap;
-}
-
-dl {
-    display: grid;
-    grid-template-columns: auto auto;
-    grid-gap: 4px;
-    width: fit-content;
-}
-
-dd {
-    margin: 0;
-}
-
-.value {
-    white-space: nowrap;
-}
-
-.not-success {
-    color: white;
-    background-color: red;
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-table, th, td {
-    border: 1px solid;
-    margin: 0;
-    padding: 0;
-}
-
-td, th {
-    vertical-align: top;
-    padding: 4px; 8px;
-}
-        </style>
+        <style>{% include "crew_brief_table.css" %}</style>
     </head>
     <body>
+        <div class="centered">
         {% for crew_brief_data in crew_briefs %}{{ render_crew_brief(**crew_brief_data) }}{% endfor %}
+        </div>
     </body>
 </html>

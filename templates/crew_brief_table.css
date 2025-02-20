@@ -1,0 +1,45 @@
+{% extends "base.css" %}
+
+dl {
+    display: grid;
+    grid-template-columns: auto auto;
+    grid-gap: 4px;
+    width: fit-content;
+}
+
+dt {
+    font-weight: bold;
+}
+
+dd {
+    margin: 0;
+}
+
+.value {
+    white-space: nowrap;
+}
+
+.not-success {
+    color: white;
+    background-color: red;
+}
+
+.not-success * {
+    color: inherit;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+table, th, td {
+    border: 1px solid;
+    margin: 0;
+    padding: 0;
+}
+
+td, th {
+    vertical-align: top;
+    padding: 4px; 8px;
+}

@@ -1,0 +1,20 @@
+/* Apply border-box globally */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: sans-serif;
+    padding: 0 1rem 50vh 0;
+}
+
+pre {
+    white-space: pre-wrap;
+}
+
+.centered {
+    display: flex;
+    justify-content: center;
+}

@@ -1,0 +1,36 @@
+
+
+
+{% macro render_path_item(path_data) %}
+    {% if path_data.insidezip %}
+    {% set href = url_for('.preview_process', path=request.view_args.top, member=path_data.path) %}
+    {% else %}
+    {% set href = url_for('.preview_root', top=path_data.path) %}
+    {% endif %}
+    <a href="{{ href }}"><span class="path">{{ path_data.path }}</span></a>
+{% endmacro %}
+
+
+<html>
+    <head>
+        <style>{% include "base.css" %}</style>
+        <style>{% include "www_preview.css" %}</style>
+    </head>
+    <body>
+        <div class="centered">
+            <p>{{ mypath }}</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                    </tr>
+                </thead>
+                <tbody>{% for path_data in listing %}
+                    <tr>
+                        <td>{{ render_path_item(path_data) }}</td>
+                    <tr>{% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </body>
+</html>

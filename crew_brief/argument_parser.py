@@ -171,3 +171,11 @@ def argument_parser():
     parser.set_defaults(func=commands.normal_run)
 
     return parser
+
+def run_from_args():
+    """
+    Parse command line and run sub-command.
+    """
+    parser = argument_parser()
+    args = parser.parse_args()
+    return args.func(args)

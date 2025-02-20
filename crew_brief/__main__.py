@@ -1,5 +1,2 @@
-from .argument_parser import argument_parser
-
-parser = argument_parser()
-args = parser.parse_args()
-args.func(args)
+from .argument_parser import run_from_args
+run_from_args()

@@ -26,7 +26,11 @@ class SingleRowIterator:
         for user_event in data['userEvents']:
             row = self.get_first_three(user_event)
             if event_details := user_event.get('eventDetails'):
-                for parents, value in nodes.visit_for_dict(event_details, key_sort=self.important_keys):
+                items = nodes.visit_for_dict(
+                    event_details,
+                    key_sort = self.important_keys,
+                )
+                for parents, value in items:
                     row += parents + (value, )
             yield row
 

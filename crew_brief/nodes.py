@@ -23,6 +23,9 @@ def visit_for_dict(data, key_sort=None, parents=None):
         yield (parents, data)
 
 def drill(data, keys):
+    """
+    Descend into data structures with a list of keys.
+    """
     for key in keys:
         if isinstance(data, list):
             try:

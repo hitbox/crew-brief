@@ -10,7 +10,7 @@ def leg_identifier_date(string):
 
 class DataStringField(mm.fields.Field):
     """
-    Split string into dict.
+    Split string on separator into dict.
     """
 
     def __init__(self, part_names, sep, part_types=None, **kwargs):
@@ -92,7 +92,6 @@ class MemberSchema(mm.Schema):
     Data from the JSON file UserEvents.txt
     """
 
-    # legIdentifier is a string with values packed into it.
     legIdentifier = DataStringField(
         part_names = constants.LEG_IDENTIFIER_PARTS,
         sep = '.',
@@ -100,16 +99,28 @@ class MemberSchema(mm.Schema):
             date = leg_identifier_date,
         ),
         required = True,
+        metadata = dict(
+            description =
+                'legIdentifier is a string with values packed into it.',
+        ),
     )
 
-    # userId is usually an integer but sometimes a username string.
-    userId = IntOrStringField()
+    userId = IntOrStringField(
+        metadata = dict(
+            description =
+                'userId is usually an integer but sometimes a'
+                ' username string.',
+        ),
+    )
 
-    # if present, userEvents is a list of many different dicts.
     userEvents = mm.fields.Nested(
         UserEventSchema,
         many = True,
         required = True,
+        metadata = dict(
+            description =
+                'If present, userEvents is a list of many different dicts.',
+        ),
     )
 
 
@@ -122,14 +133,23 @@ class PickleSchema(mm.Schema):
         MemberSchema,
         # Some zips didn't have the member we wanted.
         missing = None,
+        metadata = dict(
+            description = 'JSON data from the matching member file.',
+        ),
     )
 
     path = mm.fields.String(
         required = True,
+        metadata = dict(
+            description = 'Path to ZIP.',
+        ),
     )
 
     path_data = mm.fields.Dict(
         required = True,
+        metadata = dict(
+            description = 'Data parsed from the path.',
+        ),
     )
 
 

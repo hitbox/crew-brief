@@ -288,8 +288,6 @@ class ExcelConverter:
 
         ws.append(self.header)
 
-        return wb
-
         user_events = user_events_data['userEvents']
         original_user_events = original_user_events_data['userEvents']
 

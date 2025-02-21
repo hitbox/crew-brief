@@ -6,6 +6,8 @@ import pickle
 
 from pprint import pprint
 
+import openpyxl
+
 try:
     import win32com.client as win32
 except ImportError:
@@ -19,10 +21,13 @@ from crew_brief import nodes
 from crew_brief import output
 from crew_brief import rowifier
 from crew_brief import schema
-from crew_brief import shapers
+
+from .look import look
+from .sample_output import sample_output
 
 def get_member_data(zip_path, member_re):
     """
+    Return the JSON data of the first matching member of a zip.
     """
     with zipfile.ZipFile(zip_path) as _zipfile:
         for member in _zipfile.namelist():
@@ -99,62 +104,9 @@ def init_database(args):
                     # Save file path as processed.
                     processed_paths.add(path)
     finally:
+        # Ensure that we save progress.
         with open(database_fn, 'wb') as database_file:
             pickle.dump(database, database_file)
-
-
-def make_hashable(obj):
-    """
-    Convert an object into a hashable form to store in a set.
-    """
-    if isinstance(obj, dict):
-        return frozenset((key, make_hashable(value)) for key, value in obj.items())
-    elif isinstance(obj, list):
-        return tuple(make_hashable(item) for item in obj)
-    elif isinstance(obj, set):
-        return frozenset(make_hashable(item) for item in obj)
-    elif isinstance(obj, tuple):
-        return tuple(make_hashable(item) for item in obj)
-    else:
-        # Assume it's already hashable
-        return obj
-
-def make_type(obj):
-    if isinstance(obj, dict):
-        return frozenset((key, make_type(value)) for key, value in obj.items())
-    elif isinstance(obj, list):
-        return tuple(make_type(item) for item in obj)
-    elif isinstance(obj, set):
-        return frozenset(make_type(item) for item in obj)
-    elif isinstance(obj, tuple):
-        return tuple(make_type(item) for item in obj)
-    else:
-        return type(obj)
-
-def look(args):
-    """
-    Print values from database.
-    """
-    # XXX
-    # - This is inconsistent. The --unique doesn't work like when it's off.
-    config = configlib.from_args(args)
-    database = databaselib.database_from_config(config)
-    unique = set()
-    for zip_data in database:
-        if args.schema:
-            # Load/typify one at a time for quick results.
-            zip_data = schema.pickle_schema.load(zip_data)
-        drill_data = nodes.try_drill(
-            zip_data,
-            args.keys,
-            ignore_missing = args.ignore_missing,
-        )
-        if args.unique:
-            unique.add(make_type(drill_data))
-        else:
-            pprint(drill_data)
-    if args.unique:
-        pprint(unique)
 
 def normal_run(args):
     """
@@ -164,55 +116,6 @@ def normal_run(args):
     print('normal_run')
     config = configlib.from_args(args)
     pprint(config)
-
-def sample_output(args):
-    """
-    Produce a sample Excel output.
-    """
-    limit = args.number
-    config = configlib.from_args(args)
-    path_format = args.output.format
-    autofit_with_excel = args.autofit_with_excel
-    excel_converter = output.ExcelConverter()
-
-    member_data_shaper = shapers.MemberDataShaper()
-
-    database = databaselib.database_from_config(config)
-
-    database = discover.get_interesting_files(database)
-    if not database:
-        raise ValueError('No interesting data found.')
-
-    # TODO
-    # - Move Excel stuff somewhere else.
-    member_data_rowifier = rowifier.MemberDataRowifier()
-    import openpyxl
-
-    for count, original_zip_data in enumerate(database):
-        if count == limit:
-            break
-
-        # Load/convert to types.
-        typed_zip_data = schema.pickle_schema.load(original_zip_data)
-
-        wb = openpyxl.Workbook()
-        ws = wb.active
-
-        member_data = typed_zip_data['member_data']
-        if member_data is not None:
-
-            shaped_member_data = copy.deepcopy(member_data)
-            member_data_shaper(shaped_member_data)
-
-            pairs = member_data_rowifier(
-                shaped_member_data,
-                original = member_data,
-            )
-            for row_type, row in pairs:
-                ws.append(row)
-
-        output_path = path_format(**typed_zip_data)
-        wb.save(output_path)
 
 def discover_structure(args):
     """

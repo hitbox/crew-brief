@@ -1,30 +1,15 @@
+"""
+Parse command line arguments and run sub-command.
+"""
+
 import argparse
-import configparser
-import copy
-import datetime
-import glob
-import json
-import logging.config
-import os
-import pickle
-import re
-import zipfile
-
-from operator import itemgetter
-from pprint import pprint
-
-try:
-    import win32com.client as win32
-except ImportError:
-    win32 = None
-
-import jinja2
-import marshmallow as mm
-import openpyxl
 
 from . import commands
 
 def add_drill_keys_argument(parser):
+    """
+    Add arguments drill keys.
+    """
     parser.add_argument(
         'keys',
         nargs = '+',
@@ -39,6 +24,9 @@ def add_drill_keys_argument(parser):
     )
 
 def add_config_option(parser):
+    """
+    Add common --config option.
+    """
     parser.add_argument(
         '--config',
         help =
@@ -47,6 +35,9 @@ def add_config_option(parser):
     )
 
 def add_do_schema_option(parser):
+    """
+    Add option to use schema to convert types.
+    """
     parser.add_argument(
         '--schema',
         dest = 'schema',
@@ -76,18 +67,6 @@ def add_check_database_parser(subparsers):
     )
     check_database_parser.set_defaults(func=commands.check_database)
     add_config_option(check_database_parser)
-
-def add_discover_structure_parser(subparsers):
-    discover_structure_parser = subparsers.add_parser(
-        'discover_structure',
-        help = commands.discover_structure.__doc__,
-    )
-    add_drill_keys_argument(discover_structure_parser)
-    add_do_schema_option(discover_structure_parser)
-    add_config_option(discover_structure_parser)
-    discover_structure_parser.set_defaults(
-        func = commands.discover_structure,
-    )
 
 def add_init_database_parser(subparsers):
     """
@@ -155,7 +134,10 @@ def add_sample_output_parser(subparsers):
     sample_output_parser.set_defaults(func=commands.sample_output)
     add_config_option(sample_output_parser)
 
-def add_unique_event_details(subparsers):
+def add_unique_event_details_parser(subparsers):
+    """
+    Add parser for sub-command to find unique eventDetails.
+    """
     parser = subparsers.add_parser(
         'unique_event_details',
         help = commands.unique_event_details.__doc__,
@@ -167,6 +149,9 @@ def add_unique_event_details(subparsers):
     )
 
 def argument_parser():
+    """
+    Create the argument parser.
+    """
     parser = argparse.ArgumentParser(
         prog = 'crew_brief',
         description =
@@ -177,11 +162,10 @@ def argument_parser():
     subparsers = parser.add_subparsers()
 
     add_check_database_parser(subparsers)
-    add_discover_structure_parser(subparsers)
     add_init_database_parser(subparsers)
     add_look_parser(subparsers)
     add_sample_output_parser(subparsers)
-    add_unique_event_details(subparsers)
+    add_unique_event_details_parser(subparsers)
 
     # Default to normal_run withoutput command given.
     parser.set_defaults(func=commands.normal_run)

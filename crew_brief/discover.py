@@ -1,3 +1,7 @@
+"""
+Look for interesting data from the JSON files.
+"""
+
 from . import nodes
 
 def has_interesting(data):
@@ -11,26 +15,30 @@ def has_interesting(data):
                 # A list exists in the eventDetails.
                 if has_list(event_details):
                     return True
+    return None
 
 def has_list(data):
     """
     Recursively find a list in nested data.
     """
-    for key, value in data.items():
+    for value in data.values():
         if isinstance(value, (list, tuple)):
             return True
-        elif isinstance(value, dict):
+        if isinstance(value, dict):
             if has_list(value):
                 return True
+    return None
 
 def max_parents(data):
+    """
+    Return the maximum number of parents in data, recursively.
+    """
     return max(len(parents) for parents, data in nodes.visit(data['member_data']))
 
-def interesting(data):
-    count_max_parents = max_parents(data)
-    return count_max_parents
-
 def get_interesting_files(database):
+    """
+    Filter and sort database for interesting data.
+    """
     database = filter(has_interesting, database)
-    database = sorted(database, reverse=True, key=interesting)
+    database = sorted(database, reverse=True, key=max_parents)
     return database

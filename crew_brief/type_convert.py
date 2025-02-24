@@ -1,3 +1,6 @@
+"""
+Convert strings to types.
+"""
 import datetime
 
 from . import constants
@@ -16,6 +19,18 @@ class DateTimeConverter:
                 return datetime.datetime.strptime(string, format_)
             except (TypeError, ValueError):
                 pass
+        return None
+
+
+class DateConverter(DateTimeConverter):
+    """
+    Callable tries to convert a string to a date object.
+    """
+
+    def __call__(self, string):
+        dt = super().__call__(string)
+        if dt:
+            return dt.date()
 
 
 class FloatConverter:
@@ -62,24 +77,36 @@ class TypeConverter:
 
 
 # Important order, especially for int and float.
-default_converter = TypeConverter(
-    DateTimeConverter(
-        constants.ZDATETIME_FORMAT,
-    ),
-    IntegerConverter(),
-    FloatConverter(),
-)
-
+def default_converter():
+    type_converter = TypeConverter(
+        DateTimeConverter(
+            constants.ZDATETIME_FORMAT,
+        ),
+        IntegerConverter(),
+        FloatConverter(),
+    )
+    return type_converter
 
 def rtype_update(data, converter=None):
+    """
+    Recursively try to update types.
+    """
     if converter is None:
-        converter = default_converter
+        converter = default_converter()
 
-    if isinstance(data, dict):
-        for key, value in data.items():
+    if isinstance(data, (dict, list)):
+        if isinstance(data, dict):
+            items = data.items()
+        elif isinstance(data, list):
+            items = enumerate(data)
+        for key, value in items:
             if isinstance(value, str):
-                data[key] = converter(value)
-    elif isinstance(data, (list, tuple)):
-        for index, item in enumerate(data):
-            if isinstance(value, str):
-                data[index] = converter(value)
+                typed = rtype_update(value, converter)
+                if typed is not None:
+                    data[key] = typed
+    elif isinstance(data, tuple):
+        raise NotImplementedError('tuple')
+    elif isinstance(data, set):
+        raise NotImplementedError('set')
+    else:
+        return converter(data)

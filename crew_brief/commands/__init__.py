@@ -8,18 +8,10 @@ from pprint import pprint
 
 import openpyxl
 
-try:
-    import win32com.client as win32
-except ImportError:
-    win32 = None
-
 from crew_brief import configlib
 from crew_brief import constants
 from crew_brief import databaselib
-from crew_brief import discover
 from crew_brief import nodes
-from crew_brief import output
-from crew_brief import rowifier
 from crew_brief import schema
 
 from .look import look
@@ -116,29 +108,6 @@ def normal_run(args):
     print('normal_run')
     config = configlib.from_args(args)
     pprint(config)
-
-def discover_structure(args):
-    """
-    Print the strucure of the data in the database.
-    """
-    # XXX
-    # - This doesn't work well.
-    # - type_structure is removed from nodes.
-    config = configlib.from_args(args)
-    database = databaselib.database_from_config(config)
-
-    for zip_data in database:
-        if args.schema:
-            # Load/typify one at a time for quick results.
-            zip_data = schema.pickle_schema.load(zip_data)
-
-        data = nodes.try_drill(
-            zip_data,
-            args.keys,
-            ignore_missing = args.ignore_missing,
-        )
-        structures = list(nodes.type_structure(data))
-        pprint(structures)
 
 def unique_event_details(args):
     config = configlib.from_args(args)

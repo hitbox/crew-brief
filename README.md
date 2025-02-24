@@ -16,3 +16,7 @@ Add user-friendly Excel file for user events from JSON.
 - Original JSON in right-aligned column.
 - Number and datetime formatting.
 - Styling headers and values.
+
+### Problems
+
+- Some resizing doesn't look good, usually for rows and columns that are hard to resize in Excel itself.

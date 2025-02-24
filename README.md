@@ -1,10 +1,8 @@
 # Crew Brief
 
-Add user-friendly Excel file for user events from JSON.
+User-friendly Excel file for user events from JSON.
 
-## Python 3
-
-### Reshaping and Filtering
+## Features
 
 - Some dicts with keys that should be values are reshaped.
 - Fix integers and floats stored as strings in JSON.

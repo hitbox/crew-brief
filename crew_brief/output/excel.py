@@ -65,6 +65,7 @@ class ExcelConverter:
             # Style side-by-side field-value pairs
             'font': openpyxl.styles.Font(
                 bold = True,
+                color = 'FFFFFF',
             ),
             'alignment': openpyxl.styles.Alignment(
                 vertical = 'center',

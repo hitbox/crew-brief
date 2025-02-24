@@ -1,64 +1,14 @@
-import datetime
-
 import marshmallow as mm
 
-from . import constants
-from . import type_convert
+from crew_brief import constants
+from crew_brief import type_convert
 
-def leg_identifier_date(string):
-    return datetime.datetime.strptime(string, "%d%b%Y").date()
-
-class DataStringField(mm.fields.Field):
-    """
-    Split string on separator into dict.
-    """
-
-    def __init__(self, part_names, sep, part_types=None, **kwargs):
-        """
-        :param part_names:
-            Ordered list of names for the parts of the string.
-        :param sep:
-            Separator.
-        :param part_types:
-            Dict of names to functions to apply to resulting split-dict.
-        :param kwargs:
-            Remaining keyword arguments to pass to parent field class.
-        """
-        self.part_names = part_names
-        self.sep = sep
-        self.part_types = part_types
-        super().__init__(**kwargs)
-
-    def _deserialize(self, value, attr, data, **kwargs):
-        value_data = dict(zip(self.part_names, value.split(self.sep)))
-        if self.part_types:
-            for key, func in self.part_types.items():
-                key_value = value_data[key]
-                value_data[key] = func(key_value)
-        return value_data
-
-
-class IntOrStringField(mm.fields.Field):
-    """
-    Try make integer falling back to string.
-    """
-
-    def _deserialize(self, value, attr, data, **kwargs):
-        if isinstance(value, int):
-            return value
-
-        if isinstance(value, str):
-            try:
-                return int(value)
-            except ValueError:
-                return value
-
-        raise mm.ValidationError("Invalid type: Must be a string or integer.")
-
+from .field import DataStringField
+from .field import IntOrStringField
 
 class UserEventSchema(mm.Schema):
     """
-    Single item from userEvents.
+    Single item from userEvents list.
     """
 
     eventTimeStamp = mm.fields.DateTime(
@@ -81,13 +31,15 @@ class UserEventSchema(mm.Schema):
 
     @mm.post_load
     def post_load(self, data, **kwargs):
-        # Recursively update string values for detected types.
+        """
+        Recursively update string values for detected types.
+        """
         event_details = data['eventDetails']
         type_convert.rtype_update(event_details)
         return data
 
 
-class MemberSchema(mm.Schema):
+class UserEventsSchema(mm.Schema):
     """
     Data from the JSON file UserEvents.txt
     """
@@ -96,7 +48,9 @@ class MemberSchema(mm.Schema):
         part_names = constants.LEG_IDENTIFIER_PARTS,
         sep = '.',
         part_types = dict(
-            date = leg_identifier_date,
+            date = type_convert.DateConverter(
+                constants.LEG_IDENTIFIER_DATE_FORMAT
+            ),
         ),
         required = True,
         metadata = dict(
@@ -130,7 +84,7 @@ class PickleSchema(mm.Schema):
     """
 
     member_data = mm.fields.Nested(
-        MemberSchema,
+        UserEventsSchema,
         # Some zips didn't have the member we wanted.
         missing = None,
         metadata = dict(
@@ -151,6 +105,3 @@ class PickleSchema(mm.Schema):
             description = 'Data parsed from the path.',
         ),
     )
-
-
-pickle_schema = PickleSchema()

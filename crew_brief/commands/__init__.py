@@ -18,6 +18,7 @@ from .check_database import check_database
 from .init_database import init_database
 from .look import look
 from .sample_output import sample_output
+from .unique_event_details import unique_event_details
 
 def normal_run(args):
     """
@@ -27,21 +28,3 @@ def normal_run(args):
     print('normal_run')
     config = configlib.from_args(args)
     pprint(config)
-
-def unique_event_details(args):
-    config = configlib.from_args(args)
-    database = databaselib.database_from_config(config)
-    structures = set()
-    for zip_data in database:
-        if args.schema:
-            # Load/typify one at a time for quick results.
-            zip_data = schema.pickle_schema.load(zip_data)
-        member_data = zip_data['member_data']
-        if member_data:
-            user_events = member_data['userEvents']
-            for user_event in user_events:
-                event_details = user_event.get('eventDetails')
-                if event_details:
-                    # Add keys.
-                    structures.add(tuple(event_details))
-    pprint(structures)

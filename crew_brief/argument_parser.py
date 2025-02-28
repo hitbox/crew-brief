@@ -148,6 +148,19 @@ def add_unique_event_details_parser(subparsers):
         func = commands.unique_event_details,
     )
 
+def add_update_zips_parser(subparsers):
+    """
+    Add sub-command parser for main run.
+    """
+    parser = subparsers.add_parser(
+        'update_zips',
+        help = commands.update_zips.__doc__,
+    )
+    add_config_option(parser)
+    parser.set_defaults(
+        func = commands.update_zips,
+    )
+
 def argument_parser():
     """
     Create the argument parser.
@@ -155,7 +168,8 @@ def argument_parser():
     parser = argparse.ArgumentParser(
         prog = 'crew_brief',
         description =
-            'Rewrite crew brief JSON files as more user friendly Excel files.',
+            'Create user friendly Excel from JSON and write back'
+            ' into ZIP files.',
     )
     add_config_option(parser)
 
@@ -166,9 +180,10 @@ def argument_parser():
     add_look_parser(subparsers)
     add_sample_output_parser(subparsers)
     add_unique_event_details_parser(subparsers)
+    add_update_zips_parser(subparsers)
 
-    # Default to normal_run withoutput command given.
-    parser.set_defaults(func=commands.normal_run)
+    # Default to update_zips withoutput command given.
+    parser.set_defaults(func=commands.update_zips)
 
     return parser
 

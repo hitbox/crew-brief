@@ -1,3 +1,5 @@
+import re
+
 import marshmallow as mm
 
 class DataStringField(mm.fields.Field):
@@ -49,3 +51,32 @@ class IntOrStringField(mm.fields.Field):
                 return value
 
         raise mm.ValidationError("Invalid type: Must be a string or integer.")
+
+
+class RegexField(mm.fields.Field):
+
+    def _deserialize(self, value, attr, obj, **kwargs):
+        if not isinstance(value, str):
+            raise mm.ValidationError('Expected string.')
+
+        try:
+            regex = re.compile(value)
+        except re.error:
+            raise mm.ValidationError('Invalid regex pattern.')
+
+        return regex
+
+
+class RegexListField(mm.fields.List):
+    """
+    Field assembles keys that match a regex, into values in a list.
+    """
+
+    def __init__(self, *args, pattern, **kwargs):
+        self.regex = re.compile(pattern)
+        super().__init__(*args, **kwargs)
+
+    def _serialize(self, value, attr, obj, **kwargs):
+        if not isinstance(value, dict):
+            raise ValueError('Expected dictionary.')
+        return [key for key in value.keys() if self.regex.match(key)]

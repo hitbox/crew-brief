@@ -31,6 +31,7 @@ class DateConverter(DateTimeConverter):
         dt = super().__call__(string)
         if dt:
             return dt.date()
+        return None
 
 
 class FloatConverter:
@@ -43,6 +44,7 @@ class FloatConverter:
             return float(string)
         except (TypeError, ValueError):
             pass
+        return None
 
 
 class IntegerConverter:
@@ -55,6 +57,7 @@ class IntegerConverter:
             return int(string)
         except (TypeError, ValueError):
             pass
+        return None
 
 
 class TypeConverter:
@@ -65,15 +68,19 @@ class TypeConverter:
     def __init__(self, *funcs):
         self.funcs = funcs
 
-    def __call__(self, string):
+    def __call__(self, value):
         """
         Try convert to data type.
         """
+        if value is None:
+            return None
+
         for func in self.funcs:
-            result = func(string)
+            result = func(value)
             if result is not None:
                 return result
-        return string
+
+        return value
 
 
 # Important order, especially for int and float.
@@ -91,22 +98,27 @@ def rtype_update(data, converter=None):
     """
     Recursively try to update types.
     """
+    # Raise for not implemented.
+    if isinstance(data, tuple):
+        raise NotImplementedError('tuple')
+    if isinstance(data, set):
+        raise NotImplementedError('set')
+
     if converter is None:
         converter = default_converter()
 
-    if isinstance(data, (dict, list)):
+    if not isinstance(data, (dict, list)):
+        # Convert for non-container.
+        return converter(data)
+    else:
+        # Update items in container from recursion.
         if isinstance(data, dict):
             items = data.items()
         elif isinstance(data, list):
             items = enumerate(data)
+
         for key, value in items:
             if isinstance(value, str):
                 typed = rtype_update(value, converter)
                 if typed is not None:
                     data[key] = typed
-    elif isinstance(data, tuple):
-        raise NotImplementedError('tuple')
-    elif isinstance(data, set):
-        raise NotImplementedError('set')
-    else:
-        return converter(data)

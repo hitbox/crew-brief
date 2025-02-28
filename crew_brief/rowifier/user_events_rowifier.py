@@ -3,6 +3,10 @@ from crew_brief.sorting import EventDetailsKey
 from crew_brief.unfold import unfold_dict
 
 class UserEventRow:
+    """
+    Wrap rowified userEvent object.
+    """
+
     def __init__(self, style_hint, row, original, keys):
         self.style_hint = style_hint
         self.row = row
@@ -88,7 +92,7 @@ class UserEventRowifier:
                 sep = constants.NESTED_KEY_SEP,
             )
             return self.filter_empty_items(subheader, subvalues)
-        return None, None
+        return (None, None)
 
     def filter_empty_items(self, subheader, subvalues):
         """

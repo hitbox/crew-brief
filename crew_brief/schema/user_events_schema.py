@@ -17,11 +17,11 @@ class UserEventSchema(mm.Schema):
     )
 
     eventType = mm.fields.String(
-        missing = None,
+        default = mm.missing,
     )
 
     status = mm.fields.String(
-        missing = None,
+        default = mm.missing,
     )
 
     eventDetails = mm.fields.Dict(
@@ -74,34 +74,5 @@ class UserEventsSchema(mm.Schema):
         metadata = dict(
             description =
                 'If present, userEvents is a list of many different dicts.',
-        ),
-    )
-
-
-class PickleSchema(mm.Schema):
-    """
-    Structure of the data stored in the pickle database.
-    """
-
-    member_data = mm.fields.Nested(
-        UserEventsSchema,
-        # Some zips didn't have the member we wanted.
-        missing = None,
-        metadata = dict(
-            description = 'JSON data from the matching member file.',
-        ),
-    )
-
-    path = mm.fields.String(
-        required = True,
-        metadata = dict(
-            description = 'Path to ZIP.',
-        ),
-    )
-
-    path_data = mm.fields.Dict(
-        required = True,
-        metadata = dict(
-            description = 'Data parsed from the path.',
         ),
     )

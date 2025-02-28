@@ -2,6 +2,7 @@ import pickle
 
 from crew_brief import configlib
 from crew_brief import constants
+from crew_brief.paths import walk_paths
 
 def get_member_data(zip_path, member_re):
     """

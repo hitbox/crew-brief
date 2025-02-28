@@ -7,6 +7,7 @@ import os
 
 from itertools import repeat
 
+import marshmallow as mm
 import openpyxl
 
 from openpyxl.utils import get_column_letter
@@ -15,6 +16,8 @@ try:
     import win32com.client as win32
 except ImportError:
     win32 = None
+
+from crew_brief import constants
 
 NB_SPACE = '\xa0'
 
@@ -268,13 +271,15 @@ class ExcelConverter:
         if isinstance(value, str):
             # Strip whitespace.
             value = value.strip()
-            if '.' in value:
+            if constants.NESTED_KEY_SEP in value:
                 # Split into newlines and make spaces between splits
                 # non-breaking.
-                def _(word):
+                def nbsp(word):
                     return word.replace(' ', NB_SPACE)
-                words = (_(word) for word in value.split('.'))
+                words = value.split(constants.NESTED_KEY_SEP)
+                words = (nbsp(word) for word in words)
                 value = '\n'.join(words)
+
         return value
 
     def append_header(self, ws, event_details_length):

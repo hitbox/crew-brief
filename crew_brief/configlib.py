@@ -97,6 +97,8 @@ def file_config(cp, process_class=UpdateUserFriendlyProcess):
     sources = {}
     archives = {}
     writers = {}
+    member_regexes = {}
+    path_data_regexes = {}
 
     for process_name in human_split(cp[constants.NAME]['processes']):
         if process_name in processes:
@@ -105,7 +107,12 @@ def file_config(cp, process_class=UpdateUserFriendlyProcess):
         process_section = cp['process.' + process_name]
 
         # Required regex to match member for JSON file.
-        member_re = re.compile(process_section['member_re'])
+        member_re_name = process_section['member_re']
+        if member_re_name not in member_regexes:
+            member_re_section = cp['zip_member_re.' + member_re_name]
+            member_re = re.compile(member_re_section['member_re'])
+            member_regexes[member_re_name] = member_re
+        member_re = member_regexes[member_re_name]
 
         # Required writer key to section.
         writer_name = process_section['writer']
@@ -116,8 +123,13 @@ def file_config(cp, process_class=UpdateUserFriendlyProcess):
         writer = writers[writer_name]
 
         # Optional path_data_re regex.
-        if 'path_data_re' in process_section:
-            path_data_re = re.compile(process_section['path_data_re'])
+        if 'path_data' in process_section:
+            path_data_name = process_section['path_data']
+            if path_data_name not in path_data_regexes:
+                path_data_section = cp['path_data.' + path_data_name]
+                path_data_re = re.compile(path_data_section['path_data_re'])
+                path_data_regexes[path_data_name] = path_data_re
+            path_data_re = path_data_regexes[path_data_name]
         else:
             path_data_re = None
 

@@ -17,4 +17,6 @@ User-friendly Excel file for user events from JSON.
 
 ### Problems
 
+- Sometimes userEvent fields are missing, like "status".
+- Excel does not support microseconds, they are lost after write.
 - Some resizing doesn't look good, usually for rows and columns that are hard to resize in Excel itself.

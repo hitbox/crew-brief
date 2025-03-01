@@ -182,8 +182,11 @@ class ExcelConverter:
     def autofit_rows(self, ws, font_height=12, line_spacing=1.05):
         """
         Autofit rows.
+
+        :param ws: openpyxl Worksheet object.
+        :param font_height: Font height in points.
+        :param line_spacing: Extra padding in percent fraction.
         """
-        # font_height in points
 
         def str_with_newlines(cell):
             return isinstance(cell.value, str) and '\n' in cell.value

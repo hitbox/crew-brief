@@ -14,6 +14,9 @@ class Writer(ABC):
 
 
 class FileWriter(Writer):
+    """
+    Write data to file.
+    """
 
     def __init__(self, path):
         self.path = path

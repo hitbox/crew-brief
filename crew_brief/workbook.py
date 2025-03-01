@@ -1,8 +1,12 @@
+# TODO
+# This probably needs to move to output.excel.
+
 import copy
+import json
 
 from itertools import tee
 
-from crew_brief import output
+from crew_brief.output import excel as output_excel
 from crew_brief import rowifier
 from crew_brief import shapers
 
@@ -81,6 +85,12 @@ def build_workbook(zip_data, typed_zip_data):
     return wb
 
 def build_workbook_for_member(untyped_member_data, typed_member_data):
+    """
+    :param untyped_member_data:
+        Loaded JSON data before deserializing with schema.
+    :param typed_member_data:
+        After schema processing.
+    """
     # Copy and apply custom data shaping.
     shaped_member_data = copy.deepcopy(typed_member_data)
     member_data_shaper = shapers.MemberDataShaper()
@@ -98,10 +108,11 @@ def build_workbook_for_member(untyped_member_data, typed_member_data):
     rows = right_align_original(rows2, max_len)
 
     # Create workbook.
-    excel_converter = output.ExcelConverter()
+    excel_converter = output_excel.ExcelConverter()
     wb = excel_converter(
         rows,
-        event_details_length=max_len - 3,
+        # clumsy: 3 is the number of first values
+        event_details_length = max_len - 3,
         hide_event_details = True,
     )
 

@@ -1,9 +1,12 @@
+import os
 import shutil
 
 from abc import ABC
 from abc import abstractmethod
 from tempfile import NamedTemporaryFile
 from zipfile import ZipFile
+from zipfile import ZipInfo
+
 
 class Writer(ABC):
 
@@ -34,34 +37,47 @@ class ZipFileWriter(Writer):
 
     def write(self, context, member_data, zip_path):
         """
-        Replace zip_path with update ZIP having member_data as formatted
-        self.member_name.
+        Replace zip_path with updated ZIP having member_data as formatted
+        self.member_name, while preserving file metadata.
 
-        :param context:
-            Context dict of things picked up from processing paths, filenames,
-            and useful runtime data like named dates.
-        :param member_data:
-            Data to write to ZIP member.
+        :param context: Dict with runtime data for formatting member names.
+        :param member_data: Data to write to ZIP.
+        :param zip_path: Path to the ZIP file being modified.
         """
         member_name = self.member_name.format(**context)
 
-        # TODO
-        # - Keep original file metadata.
+        # Preserve original ZIP metadata
+        original_stat = os.stat(zip_path)
 
         with (
-            # Source zip file to read from.
             ZipFile(zip_path, 'r') as src_zip,
-            # Temporary file on disk to write zip output to.
             NamedTemporaryFile(delete=False, suffix='.zip') as temp_file,
-            # Open temp file to write filtered source.
             ZipFile(temp_file, 'w') as dst_zip,
         ):
-            # Keep other files, writing to temp.
+            # Copy all files except the one being replaced
             for item in src_zip.infolist():
                 if item.filename != member_name:
-                    dst_zip.writestr(item, src_zip.read(item.filename))
-            # Append new data.
-            dst_zip.writestr(member_name, member_data)
+                    dst_zip.writestr(
+                        item,
+                        src_zip.read(item.filename),
+                        compress_type = item.compress_type,
+                    )
+                    # Preserve metadata
+                    dst_info = dst_zip.getinfo(item.filename)
+                    # Preserve modified time
+                    dst_info.date_time = item.date_time
 
-        # Replace/overwrite with updated ZIP.
+            # Add the updated member with the current timestamp
+            new_info = ZipInfo(member_name)
+            # Preserve original timestamp
+            new_info.date_time = item.date_time
+            dst_zip.writestr(new_info, member_data)
+
+        # Copy file status from original to temp file.
+        shutil.copystat(zip_path, temp_file.name)
+
+        # Update access and modified times.
+        os.utime(temp_file.name)
+
+        # Replace the original ZIP file.
         shutil.move(temp_file.name, zip_path)

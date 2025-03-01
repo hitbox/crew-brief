@@ -1,6 +1,7 @@
 import copy
 import io
 import json
+import logging
 import re
 
 from abc import ABC
@@ -74,6 +75,8 @@ class UpdateUserFriendlyProcess(Process):
             Substitution dict passed to the path generator and the base context
             for each path.
         """
+        logger = logging.getLogger('crew_brief')
+
         # Schema for ZIP member JSON.
         member_schema = self.member_schema_class()
 
@@ -121,6 +124,8 @@ class UpdateUserFriendlyProcess(Process):
 
                         # Save path to archive.
                         self.archive.save(zip_path)
+
+                        logger.info('processed:%s', zip_path)
 
                         # Break looping members. May have to support multiple
                         # matches later.

@@ -1,22 +1,25 @@
 # Crew Brief
 
-User-friendly Excel file for user events from JSON.
+A user-friendly Excel file for user events derived from JSON.
+
+This tool updates ZIP files with a new user-friendly Excel file, which flattens the original JSON data.
 
 ## Features
 
-- Some dicts with keys that should be values are reshaped.
-- Fix integers and floats stored as strings in JSON.
-- `eventDetails` transformed into header and values rows to avoid excessive width.
-- Empty container values in `eventDetails` are filtered out.
-- Status field color highlighted.
-- Sorting `eventDetails` keys.
-- Bulleted lists for cells.
-- Original JSON in right-aligned column.
-- Number and datetime formatting.
-- Styling headers and values.
+- Reshapes dictionaries where keys should be values.
+- Converts integers and floats stored as strings in the JSON to their proper types.
+- Transforms the `eventDetails` field into header and value rows to avoid excessive width.
+- Filters out empty container values in `eventDetails`.
+- Highlights the status field with color.
+- Sorts the keys in `eventDetails`.
+- Adds bulleted lists to relevant cells.
+- Places the original JSON in a right-aligned column.
+- Applies number and datetime formatting.
+- Styles headers and values for clarity and readability.
+- Retains original ZIP file metadata and updates the access time (atime) and modification time (mtime).
 
 ### Problems
 
-- Sometimes userEvent fields are missing, like "status".
-- Excel does not support microseconds, they are lost after write.
-- Some resizing doesn't look good, usually for rows and columns that are hard to resize in Excel itself.
+- Sometimes fields like "status" are missing from `userEvent`.
+- Excel does not support microseconds, so they are lost during writing.
+- Row and column resizing in Excel may not look great, particularly for those that are hard to resize manually.

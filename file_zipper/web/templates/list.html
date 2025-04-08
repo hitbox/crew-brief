@@ -1,0 +1,16 @@
+{% extends "plugbase.html" %}
+
+
+{% from "macro.html" import render_pagination %}
+
+
+{% block model %}
+<div>{% for obj in objects %}
+    <div class="data">
+        {% if endpoint %}<a href="{{ url_for(endpoint, id=obj.id) }}">{% else %}<div>{% endif %}
+        {{ obj.display_string }}
+        {% if endpoint %}</a>{% else %}</div>{% endif %}
+    </div>
+{% endfor %}</div>
+<nav class="pagination-container">{{ render_pagination(objects, request.endpoint) }}</nav>
+{% endblock %}

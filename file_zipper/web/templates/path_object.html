@@ -1,0 +1,7 @@
+{% extends "object.html" %}
+
+
+{% block after_column_list %}
+    {% set url = url_for('.send_file', id=instance.id, filename=instance.path) %}
+    <a href="{{ url }}" target="_blank">Open file in new tab...</a>
+{% endblock %}

@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+
+{% from "macro.html" import render_pagination %}
+
+
+{% block main %}
+<section>
+    <h2>Match ZIP with PDF</h2>
+    <p> Select a zip path to match with pdf<p>
+    <div>{% for zip_path in zip_paths %}
+        <div class="data">
+            <a href="{{ url_for('query.match_zip_with_pdf', zip_path_id=zip_path.id) }}">{{ zip_path.display_string }}</a>
+        </div>
+    {% endfor %}</div>
+    <nav class="pagination-container">{{ render_pagination(zip_paths, request.endpoint) }}</nav>
+</section>
+{% endblock %}

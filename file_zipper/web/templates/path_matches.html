@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+
+{% from "macro.html" import render_pagination %}
+
+
+{% block main %}
+<section>
+    <h2>Path Matches</h2>
+    <div class="grid grid3col">
+        <div class="grid-item">Path</div>
+        <div class="grid-item">Regex</div>
+        <div class="grid-item">Data</div>
+        {% for pathmatch in pathmatches %}
+            <div class="grid-item data"><a href="{{ url_for('model.path.instance', id=pathmatch.path.id) }}">{{ pathmatch.path.basename }}</a></div>
+            <div class="grid-item data">
+                <a href="{{ url_for('model.regex.instance', id=pathmatch.path_parser.regex.id) }}">{{ pathmatch.path_parser.regex.name }}</a>
+            </div>
+            <div class="grid-item data">
+                <div class="grid grid2col">{% for key, val in pathmatch.collapsed_data|items|sort %}
+                    <div>{{ key }}</div>
+                    <div>{{ val }}</div>
+                {% endfor %}</div>
+            </div>
+        {% endfor %}
+        <div class="pagination-container">
+        {{ render_pagination(pathmatches, request.endpoint) }}
+        </div>
+    </div>
+</section>
+{% endblock %}

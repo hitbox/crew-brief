@@ -1,0 +1,22 @@
+{% extends "plugbase.html" %}
+
+
+{% from "macro.html" import render_object %}
+{% from "macro.html" import render_mapping %}
+
+
+{% block section_top %}<a href="{{ url_for('.list') }}">Back to list</a>{% endblock %}
+
+
+{% block model %}
+<div class="grid grid2col">{% for attr in model_attrs %}
+    {# key #}
+    <div>{{ attr.key }}</div>
+    {# value #}
+    {% if attr.url %}
+    <a href="{{ attr.url }}">{{ attr.value }}</a>
+    {% else %}
+    <div class="data">{{ attr.value }}</div>
+    {% endif %}
+{% endfor %}</div>
+{% endblock %}

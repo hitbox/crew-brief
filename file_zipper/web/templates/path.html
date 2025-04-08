@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+
+{% block main %}
+<section class="stack">
+    <h2>{{ subtitle }}</h2>
+    <div>{% for path in paths %}
+        <details>
+            <summary class="data">{{ path.path }}</summary>
+            <div class="grid grid2col">
+                <div>glob</div>
+                <div><a href="{{ url_for('.glob', id=path.glob.id) }}">{{ path.glob.full_pathname }}</a></div>
+            </div>
+        </details>
+    {% endfor %}</div>
+</section>
+{% endblock %}

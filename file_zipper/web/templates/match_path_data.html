@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+
+{% block main %}
+<section>
+    <h3>sql</h3>
+    <pre class="sql">{{ stmt }}</pre>
+    <h3>paths</h3>
+    <div>{% for thing in paths %}
+        <div>{{ thing.path }}</div>
+    {% endfor %}</div>
+    {#
+    <h3>grid</h3>
+    <div class="grid grid2col">{% for path1, path2 in paths %}
+        <div class="data">{{ path1.path }}</div>
+        <div class="data">{{ path2.path }}</div>
+    {% endfor %}</div>
+    #}
+</section>
+{% endblock %}

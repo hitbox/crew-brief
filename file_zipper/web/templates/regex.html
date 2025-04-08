@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+
+{% set debug = False %}
+
+
+{% block main %}
+<section class="stack">
+    <div>
+        <h2>Regex</h2>
+        <p>{{ regex.name }}</p>
+        <h3>Pattern</h3>
+        <div class="data pattern-string">{{ regex.pattern_string }}</div>
+        {#
+        <h3>Pattern Parts</h3>
+        <div>{% for pattern_part in regex.pattern_string_parts %}
+            {% set pattern_data = pattern_part.groupdict() %}
+            {% if debug %}<div class="data debug">{{ pattern_data }}</div>{% endif %}
+            {% if pattern_data.group is not none %}<div class="pattern-part group">{{ pattern_data.group|replace(' ', '&nbsp;')|safe }}</div>{% endif %}
+            {% if pattern_data.literal is not none %}<div class="pattern-part literal">{{ pattern_data.literal|replace(' ', '&nbsp;')|safe }}</div>{% endif %}
+        {% endfor %}</div>
+        #}
+    </div>
+</section>
+{% endblock %}

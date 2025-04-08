@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+
+{% block main %}
+<section>
+    <h2>Index</h2>
+    <div>
+        <h3>Unmatched</h3>
+        <a href="{{ url_for('query.unmatched_paths') }}">Unmatched paths.</a>
+        <p>Paths whose regex failed to match.</p>
+    </div>
+    <div>
+        <h3>Match ZIP with PDF</h3>
+        <a href="{{ url_for('query.match_zip_with_pdf_list') }}">Match zip files to pdf files.</a>
+    </div>
+    <h3>Object Models</h3>
+    <p>Database object lists and instances.</p>
+    <ul>{% for model in models %}
+        <li>
+            {% set name = model.__table__.name %}
+            <a href="{{ url_for('model.' + name + '.list') }}">{{ model.__name__ }}</a>
+        </li>{% endfor %}
+    </ul>
+</section>
+{% endblock %}

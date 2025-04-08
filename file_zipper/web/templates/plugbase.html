@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+
+{% block main %}
+<section>
+    {% block section_top %}{% endblock %}
+    <h2>{{ title }}</h2>
+    {% if subtitle %}<h3>{{ subtitle }}</h3>{% endif %}
+    {% if description %}<p>{{ description }}</p>{% endif %}
+    {% block model %}{% endblock %}
+</section>
+{% endblock %}

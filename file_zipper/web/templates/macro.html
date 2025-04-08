@@ -1,0 +1,47 @@
+{# render_pagination #}
+{% macro render_pagination(pagination, endpoint) %}
+    <div class="page-items">
+        {{ pagination.first|thousands }} - {{ pagination.last|thousands }} of {{ pagination.total|thousands }}
+    </div>
+    <div class="pagination">
+    {% for page in pagination.iter_pages() %}
+        {% if page %}
+            {% if page != pagination.page %}
+            <a href="{{ url_for(endpoint, page=page) }}">{{ page|thousands }}</a>
+            {% else %}
+            <strong>{{ page | thousands }}</strong>
+            {% endif %}
+        {% else %}
+            <span class=ellipsis>…</span>
+        {% endif %}
+    {% endfor %}
+    </div>
+{% endmacro %}
+
+{# render_mapping #}
+{% macro render_mapping(obj) %}
+    <div class="grid grid2col">{% for key, value in obj|items %}
+        <div>{{ key }}</div>
+        <div>{{ value }}</div>
+    {% endfor %}</div>
+{% endmacro %}
+
+{# render_object #}
+{% macro render_object(obj) %}
+    <dl>
+        {% if obj is mapping %}  {# Handle dictionaries #}
+            {% for key, value in obj.items() %}
+                <dt>{{ key }}</dt>
+                <dd>{{ value }}</dd>
+            {% endfor %}
+        {% elif obj.__dict__ is defined %} {# Handle objects with attributes #}
+            {% for key, value in obj.__dict__.items() if not key.startswith('_') %}
+                <dt>{{ key }}</dt>
+                <dd>{{ value }}</dd>
+            {% endfor %}
+        {% else %} {# Fallback: Just display the object #}
+            <dt>Value</dt>
+            <dd>{{ obj }}</dd>
+        {% endif %}
+    </dl>
+{% endmacro %}

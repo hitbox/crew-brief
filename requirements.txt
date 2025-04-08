@@ -1,5 +1,7 @@
 flask
+flask-sqlalchemy
 jinja2
 marshmallow
 openpyxl
 pywin32; sys_platform == 'win32'
+sqlalchemy

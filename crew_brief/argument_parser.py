@@ -148,17 +148,17 @@ def add_unique_event_details_parser(subparsers):
         func = commands.unique_event_details,
     )
 
-def add_update_zips_parser(subparsers):
+def add_process_parser(subparsers):
     """
     Add sub-command parser for main run.
     """
     parser = subparsers.add_parser(
-        'update_zips',
-        help = commands.update_zips.__doc__,
+        'process',
+        help = commands.process.__doc__,
     )
     add_config_option(parser)
     parser.set_defaults(
-        func = commands.update_zips,
+        func = commands.process,
     )
 
 def argument_parser():
@@ -175,15 +175,10 @@ def argument_parser():
 
     subparsers = parser.add_subparsers()
 
-    add_check_database_parser(subparsers)
-    add_init_database_parser(subparsers)
-    add_look_parser(subparsers)
-    add_sample_output_parser(subparsers)
-    add_unique_event_details_parser(subparsers)
-    add_update_zips_parser(subparsers)
+    add_process_parser(subparsers)
 
     # Default to update_zips withoutput command given.
-    parser.set_defaults(func=commands.update_zips)
+    parser.set_defaults(func=commands.process)
 
     return parser
 

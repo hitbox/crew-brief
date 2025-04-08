@@ -16,6 +16,15 @@ class Writer(ABC):
         """
 
 
+class NullWriter(Writer):
+    """
+    Do nothing writer.
+    """
+
+    def write(self, context, data, zip_path):
+        pass
+
+
 class FileWriter(Writer):
     """
     Write data to file.

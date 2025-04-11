@@ -112,3 +112,20 @@ def split_dict(data, keys):
     extracted = {k: data[k] for k in keys if k in data}
     remaining = {k: v for k, v in data.items() if k not in keys}
     return (extracted, remaining)
+
+def pad_list(list_, pad_value=None):
+    max_length = max(map(len, list_))
+
+    # Allow different row types or enforce all the same?
+    # For now, we allow different.
+
+    def padding(row):
+        if isinstance(row, list):
+            pad = [pad_value]
+        elif isinstance(row, tuple):
+            pad = (pad_value,)
+        else:
+            raise ValueError(f'Invalid row type {type(row)}.')
+        return pad
+
+    return [row + padding(row) * (max_length - len(row)) for row in list_]

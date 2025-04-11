@@ -1,3 +1,4 @@
+from crew_brief.sorting import pad_list
 from crew_brief.sorting import split_dict
 
 from .mixin import ConsistencyMixin
@@ -34,25 +35,26 @@ class SingleRowifier(ConsistencyMixin):
 
         max_left_row_len = max(len(data) for data in lefts)
 
-        assert len(mains) == len(lefts) == len(rights)
-
         details = []
-        for main, left, right in zip(mains, lefts, rights):
+        for main, left, right in zip(mains, lefts, rights, strict=True):
+            # Add main row.
             row = list(main.values())
             # Add lefts as flattened keys and values.
             row += [thing for item in left.items() for thing in item]
             if right:
+                # Padding for right row.
                 row += [None for _ in range(max_left_row_len - len(row)) for _ in range(2)]
 
             row += [thing for item in right.items() for thing in item]
             details.append(row)
 
-        max_detail_row_len = max(len(data) for data in details)
-
         yield from details
         return
 
+        max_detail_row_len = max(len(data) for data in details)
+
         # TODO
+        # - right side rows are not going fully to the right.
         # - original_data doesn't seem to be what we need to append it to the
         #   rows.
         # - Need to add the original data for each row in hidden column.

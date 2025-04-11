@@ -47,5 +47,14 @@ class TestSplitDict(unittest.TestCase):
         self.assertEqual(remaining, {'a': 1, 'b': 2})
 
 
+class TestPadList(unittest.TestCase):
+
+    def test_pad_list(self):
+        list_ = [(1, 2), (1,), (1, 2, 3), (1, )]
+        result = sorting.pad_list(list_)
+        expect = [(1, 2, None), (1, None, None), (1, 2, 3), (1, None, None)]
+        self.assertEqual(result, expect)
+
+
 if __name__ == '__main__':
     unittest.main()

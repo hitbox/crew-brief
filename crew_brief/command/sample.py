@@ -4,7 +4,7 @@ from crew_brief import discover
 from crew_brief import schema
 from crew_brief import workbook
 
-def sample_output(args):
+def sample(args):
     """
     Produce a sample Excel output.
     """

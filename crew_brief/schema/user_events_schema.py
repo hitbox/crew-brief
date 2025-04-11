@@ -17,16 +17,16 @@ class UserEventSchema(mm.Schema):
     )
 
     eventType = mm.fields.String(
-        default = mm.missing,
+        load_default = mm.missing,
     )
 
     status = mm.fields.String(
-        default = mm.missing,
+        load_default = None,
     )
 
     eventDetails = mm.fields.Dict(
         # Dict for missing key.
-        missing = dict,
+        load_default = dict,
     )
 
     @mm.post_load

@@ -21,6 +21,18 @@ class Archive(ABC):
         """
 
 
+class NullArchive(Archive):
+    """
+    Archive that always checks false and does nothing for save.
+    """
+
+    def check(self, check_path):
+        return False
+
+    def save(self, save_path):
+        pass
+
+
 class PathArchive(Archive):
     """
     Maintain a set and a file of paths for checking if they've

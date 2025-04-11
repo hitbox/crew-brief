@@ -1,26 +1,10 @@
 from crew_brief import constants
 from crew_brief.sorting import EventDetailsKey
 from crew_brief.unfold import unfold_dict
+from crew_brief.sorting import padded_keys
 
-class UserEventRow:
-    """
-    Wrap rowified userEvent object.
-    """
-
-    def __init__(self, style_hint, row, original, keys):
-        self.style_hint = style_hint
-        self.row = row
-        self.original = original
-        self.keys = keys
-
-    def __len__(self):
-        return len(self.row)
-
-    def __iter__(self):
-        yield self.style_hint
-        yield self.row
-        yield self.original
-
+from .mixin import ConsistencyMixin
+from .user_event_row import UserEventRow
 
 class UserEventRowifier:
     """
@@ -154,7 +138,7 @@ class UserEventRowifier:
         )
 
 
-class UserEventsRowifier:
+class UserEventsRowifier(ConsistencyMixin):
     header = [
         'eventTimeStamp',
         'status',
@@ -208,12 +192,6 @@ class UserEventsRowifier:
             original=None,
             keys=('userId', 'userId'),
         )
-
-    def event_lists_are_consistent(self, user_events1, user_events2):
-        """
-        Check if the truthiness of userEvents is the same for both lists.
-        """
-        return bool(user_events1) == bool(user_events2)
 
     def __call__(self, member_data, original_data):
         """

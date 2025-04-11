@@ -7,11 +7,13 @@ import json
 from itertools import tee
 
 from crew_brief.output import excel as output_excel
-from crew_brief import rowifier
+from crew_brief.model import rowifier
 from crew_brief import shapers
 
+default_rowifier_class = rowifier.SingleRowifier
+
 def select_event_details_row(user_event_row):
-    return (
+    selected = (
         # Has original data.
         user_event_row.original
         and
@@ -21,6 +23,9 @@ def select_event_details_row(user_event_row):
         and
         'header' in user_event_row.style_hint
     )
+    if selected:
+        breakpoint()
+    return selected
 
 def max_event_details_length(styled_rows):
     iterable = (
@@ -51,7 +56,12 @@ def right_align_original(styled_rows, max_len):
             user_event_row.row = user_event_row.row + pad + (user_event_row.original, )
         yield user_event_row
 
-def build_workbook(zip_data, typed_zip_data):
+def build_workbook(zip_data, typed_zip_data, rowifier_class=None):
+    # TODO
+    # - Probably turn these functions into classes.
+    if rowifier_class is None:
+        rowifier_class = default_rowifier_class
+
     # Raise for member_data is None
     untyped_member_data = zip_data['member_data']
     if untyped_member_data is None:
@@ -84,20 +94,23 @@ def build_workbook(zip_data, typed_zip_data):
 
     return wb
 
-def build_workbook_for_member(untyped_member_data, typed_member_data):
+def build_workbook_for_member(untyped_member_data, typed_member_data, rowifier_class=None):
     """
     :param untyped_member_data:
         Loaded JSON data before deserializing with schema.
     :param typed_member_data:
         After schema processing.
     """
+    if rowifier_class is None:
+        rowifier_class = default_rowifier_class
+
     # Copy and apply custom data shaping.
     shaped_member_data = copy.deepcopy(typed_member_data)
     member_data_shaper = shapers.MemberDataShaper()
     member_data_shaper(shaped_member_data)
 
     # Turn data into rows.
-    user_events_rowifier = rowifier.UserEventsRowifier()
+    user_events_rowifier = rowifier_class()
     rows = user_events_rowifier(shaped_member_data, untyped_member_data)
 
     # Push last cell of row to the right.

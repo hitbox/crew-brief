@@ -3,12 +3,12 @@ class EventDetailsShaper:
     Expand dicts that have values as keys.
     """
 
-    expand_key_as_value = set([
+    expand_key_as_value = {
         'assignedLandingDuty',
         'assignedTakeOffDuty',
         'withdrawnLandingDuty',
         'withdrawnTakeOffDuty',
-    ])
+    }
 
     def expand_item(self, data):
         assert isinstance(data, dict)
@@ -33,8 +33,9 @@ class UserEventShaper:
         self.event_details_shaper = event_details_shaper
 
     def __call__(self, user_event):
-        if 'eventDetails' in user_event:
-            self.event_details_shaper(user_event['eventDetails'])
+        event_details = user_event.get('eventDetails')
+        if event_details:
+            self.event_details_shaper(event_details)
 
 
 class MemberDataShaper:

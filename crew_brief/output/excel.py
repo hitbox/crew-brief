@@ -7,7 +7,6 @@ import os
 
 from itertools import repeat
 
-import marshmallow as mm
 import openpyxl
 
 from openpyxl.utils import get_column_letter
@@ -18,19 +17,26 @@ except ImportError:
     win32 = None
 
 from crew_brief import constants
+from crew_brief.type_convert import to_excel_value
 
 NB_SPACE = '\xa0'
 
 muted_blue_fill = openpyxl.styles.PatternFill(
     # Muted blue
-    start_color = '2E75B6',
-    end_color = '2E75B6',
+    start_color = 'dbeef4',
+    end_color = 'dbeef4',
     fill_type = 'solid',
 )
 
 success_keys = set([
     'status',
 ])
+
+def styles_from_workbook(source, prefix):
+    wb = openpyxl.load_workbook(source)
+
+
+
 
 class ExcelConverter:
     """
@@ -55,7 +61,7 @@ class ExcelConverter:
         'header_style': {
             'font': openpyxl.styles.Font(
                 bold = True,
-                color = 'FFFFFF',
+                color = '000000',
             ),
             'alignment': openpyxl.styles.Alignment(
                 vertical = 'center',
@@ -68,7 +74,7 @@ class ExcelConverter:
             # Style side-by-side field-value pairs
             'font': openpyxl.styles.Font(
                 bold = True,
-                color = 'FFFFFF',
+                color = '000000',
             ),
             'alignment': openpyxl.styles.Alignment(
                 vertical = 'center',
@@ -87,12 +93,11 @@ class ExcelConverter:
         'success_style': {
             'font': openpyxl.styles.Font(
                 bold = True,
-                color = 'FFFFFF',
+                color = '000000',
             ),
             'fill': openpyxl.styles.PatternFill(
-                # Modern success green (Material Design)
-                start_color = '2E7D32',
-                end_color = '2E7D32',
+                start_color = '7bf784',
+                end_color = '7bf784',
                 fill_type = 'solid',
             ),
             'alignment': openpyxl.styles.Alignment(
@@ -130,10 +135,10 @@ class ExcelConverter:
             'number_format': '#,##0.00',
         },
         'full_datetime_style': {
-            'number_format': 'yyyy-mm-dd hh:mm:ss',
+            'number_format': 'yyyy-mm-dd hh:mm:ssZ',
         },
         'short_datetime_style': {
-            'number_format': 'yyyy-mm-dd hh:mm',
+            'number_format': 'yyyy-mm-dd hh:mmZ',
         },
         'waypoint_style': {
             'font': openpyxl.styles.Font(
@@ -261,30 +266,6 @@ class ExcelConverter:
                 if cell.value is not None:
                     self.apply_style(cell, self.styles['header_style'])
 
-    def to_excel_value(self, value):
-        """
-        Convert value for Excel.
-        """
-        if isinstance(value, (list, tuple)):
-            return bake_list(value)
-
-        if isinstance(value, (dict, set)):
-            return str(value)
-
-        if isinstance(value, str):
-            # Strip whitespace.
-            value = value.strip()
-            if constants.NESTED_KEY_SEP in value:
-                # Split into newlines and make spaces between splits
-                # non-breaking.
-                def nbsp(word):
-                    return word.replace(' ', NB_SPACE)
-                words = value.split(constants.NESTED_KEY_SEP)
-                words = (nbsp(word) for word in words)
-                value = '\n'.join(words)
-
-        return value
-
     def append_header(self, ws, event_details_length):
         """
         Append header row and style.
@@ -334,7 +315,7 @@ class ExcelConverter:
         # Append rows coming from rowifier and style. These can be headers and
         # values.
         for user_event_row in rows:
-            row_for_excel = tuple(self.to_excel_value(value) for value in user_event_row.row)
+            row_for_excel = tuple(to_excel_value(value) for value in user_event_row.row)
             ws.append(row_for_excel)
             cells = ws[ws.max_row]
             self.apply_row_styles(user_event_row, cells)
@@ -359,12 +340,6 @@ class ExcelConverter:
 
         return wb
 
-
-def bake_list(value):
-    """
-    Make a nice string for lists.
-    """
-    return '\n'.join(f'● {thing}' for thing in value)
 
 def autofit_with_excel(filename):
     """

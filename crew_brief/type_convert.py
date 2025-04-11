@@ -122,3 +122,34 @@ def rtype_update(data, converter=None):
                 typed = rtype_update(value, converter)
                 if typed is not None:
                     data[key] = typed
+
+def bake_list(value):
+    """
+    Make a nice string for lists.
+    """
+    return '\n'.join(f'● {thing}' for thing in value)
+
+def to_excel_value(value):
+    """
+    Convert value for Excel.
+    """
+    if isinstance(value, (list, tuple)):
+        return bake_list(value)
+
+    if isinstance(value, (dict, set)):
+        return str(value)
+
+    if isinstance(value, str):
+        # Strip whitespace.
+        value = value.strip()
+        if constants.NESTED_KEY_SEP in value:
+            # Split into newlines and make spaces between splits
+            # non-breaking.
+            def nbsp(word):
+                return word.replace(' ', NB_SPACE)
+            words = value.split(constants.NESTED_KEY_SEP)
+            words = (nbsp(word) for word in words)
+            value = '\n'.join(words)
+
+    return value
+

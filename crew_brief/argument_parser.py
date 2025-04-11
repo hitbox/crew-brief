@@ -4,7 +4,7 @@ Parse command line arguments and run sub-command.
 
 import argparse
 
-from . import commands
+from . import command
 
 def add_drill_keys_argument(parser):
     """
@@ -65,7 +65,7 @@ def add_check_database_parser(subparsers):
             'Traverse the pickle database and confirm assumptions. That'
             ' eventDetails is a dict, for instance.',
     )
-    check_database_parser.set_defaults(func=commands.check_database)
+    check_database_parser.set_defaults(func=command.database.check)
     add_config_option(check_database_parser)
 
 def add_init_database_parser(subparsers):
@@ -79,7 +79,7 @@ def add_init_database_parser(subparsers):
             'Initialize a database of JSON data from the ZIP files for'
             ' faster testing.',
     )
-    init_database_parser.set_defaults(func=commands.init_database)
+    init_database_parser.set_defaults(func=command.database.init)
     add_config_option(init_database_parser)
 
 def add_look_parser(subparsers):
@@ -88,7 +88,7 @@ def add_look_parser(subparsers):
     """
     look_parser = subparsers.add_parser(
         'look',
-        help = commands.look.__doc__,
+        help = command.look.look.__doc__,
     )
     look_parser.add_argument(
         '--unique',
@@ -99,7 +99,7 @@ def add_look_parser(subparsers):
     add_do_schema_option(look_parser)
     add_config_option(look_parser)
     look_parser.set_defaults(
-        func = commands.look,
+        func = command.look.look,
     )
 
 def add_sample_output_parser(subparsers):
@@ -131,7 +131,7 @@ def add_sample_output_parser(subparsers):
             'Use single rows to write eventDetails to.'
             ' Otherwise create sub-tables.',
     )
-    sample_output_parser.set_defaults(func=commands.sample_output)
+    sample_output_parser.set_defaults(func=command.sample.sample)
     add_config_option(sample_output_parser)
 
 def add_unique_event_details_parser(subparsers):
@@ -140,12 +140,12 @@ def add_unique_event_details_parser(subparsers):
     """
     parser = subparsers.add_parser(
         'unique_event_details',
-        help = commands.unique_event_details.__doc__,
+        help = command.unique_event_details.unique_event_details.__doc__,
     )
     add_config_option(parser)
     add_do_schema_option(parser)
     parser.set_defaults(
-        func = commands.unique_event_details,
+        func = command.unique_event_details.unique_event_details,
     )
 
 def add_process_parser(subparsers):
@@ -154,12 +154,44 @@ def add_process_parser(subparsers):
     """
     parser = subparsers.add_parser(
         'process',
-        help = commands.process.__doc__,
+        help = command.process.process.__doc__,
     )
     add_config_option(parser)
     parser.set_defaults(
-        func = commands.process,
+        func = command.process.process,
     )
+
+def add_style_parser(subparsers):
+    parser = subparsers.add_parser(
+        'style',
+        help = command.style.__doc__,
+    )
+
+    subparsers = parser.add_subparsers()
+
+    help = 'Extract styles from a workbook.'
+    from_workbook_parser = subparsers.add_parser(
+        'from_workbook',
+        help = help,
+        description = help,
+    )
+    from_workbook_parser.add_argument(
+        'file',
+        help = 'Excel file.',
+    )
+    from_workbook_parser.add_argument(
+        '--prefix',
+        default = 'crew_brief__',
+        help =
+            'Prefix for named ranges to extract formatting from. Dots are not'
+            ' allowed in named ranges. Default %(default)r.',
+    )
+    from_workbook_parser.add_argument(
+        '--reference-suffix',
+        default = 'reference',
+        help = 'Suffix for the unaltered reference cell. Default %(default)r.',
+    )
+    parser.set_defaults(func=command.style.from_workbook)
 
 def argument_parser():
     """
@@ -176,9 +208,10 @@ def argument_parser():
     subparsers = parser.add_subparsers()
 
     add_process_parser(subparsers)
+    add_style_parser(subparsers)
 
     # Default to update_zips withoutput command given.
-    parser.set_defaults(func=commands.process)
+    parser.set_defaults(func=command.process.process)
 
     return parser
 
@@ -188,4 +221,6 @@ def run_from_args():
     """
     parser = argument_parser()
     args = parser.parse_args()
-    return args.func(args)
+    func = args.func
+    delattr(args, 'func')
+    return func(args)

@@ -5,7 +5,6 @@ import pickle
 import re
 
 from . import constants
-from crew_brief.models import eval_context
 
 def from_args(args):
     """
@@ -19,7 +18,7 @@ def from_args(args):
         config_path = []
 
     if not config_path:
-        raise ValueError('No configuration files given.')
+        raise ValueError('No configuration files given or found.')
 
     cp = configparser.ConfigParser(
         interpolation = configparser.ExtendedInterpolation(),

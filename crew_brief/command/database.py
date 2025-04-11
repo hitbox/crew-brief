@@ -2,7 +2,24 @@ import pickle
 
 from crew_brief import configlib
 from crew_brief import constants
-from crew_brief.paths import walk_paths
+from crew_brief import databaselib
+from crew_brief import schema
+from crew_brief.path import walk_paths
+
+def check(args):
+    """
+    Check assumptions against pickle database.
+    """
+    config = configlib.from_args(args)
+    database = databaselib.database_from_config(config)
+    typed_database = schema.pickle_schema.load(
+        database,
+        many = True,
+    )
+
+    for zip_data in typed_database:
+        member_data = zip_data.get('member_data')
+        assert isinstance(user_event['eventDetails'], dict)
 
 def get_member_data(zip_path, member_re):
     """
@@ -16,7 +33,7 @@ def get_member_data(zip_path, member_re):
                 member_data = json.loads(member_json)
                 return member_data
 
-def init_database(args):
+def init(args):
     """
     Load a pickle database with data scraped from the paths and zip files.
     """

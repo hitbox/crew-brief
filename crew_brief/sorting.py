@@ -67,3 +67,48 @@ class EventDetailsKey:
             return ordering_list.index(key)
         else:
             return len(self.detail_keys)
+
+
+def padded_keys(
+    data,
+    sort_key = None,
+    reverse = False,
+    pad_value = None,
+    only = None,
+):
+    """
+    Columnize the data. Generate rows of sorted keys padded to align them in
+    each row.
+    """
+    unique_keys = {key for row in data for key in row}
+    sorted_keys = sorted(unique_keys, key=sort_key, reverse=reverse)
+
+    def value(row, key):
+        if key in row:
+            return key
+        elif not only or key in only:
+            return pad_value
+
+    for row in data:
+        yield [value(row, key) for key in sorted_keys]
+
+def tailed(data, tailkeys, pad_value=None):
+    main_keys = [key for row in data for key in row if key not in tailkeys]
+    main_width = len(main_keys)
+
+    for row in data:
+        left = [row.get(k) for k in main_keys if k in row]
+        pad_len = main_width - len(left)
+        # collapse missing keys left
+        padded_left = left + [pad_value] * pad_len
+        tail = [row.get(k, pad_value) for k in tailkeys]
+        yield padded_left + tail
+
+def for_keys(data, keys):
+    for row in data:
+        yield {key: val for key, val in row.items() if key in keys}
+
+def split_dict(data, keys):
+    extracted = {k: data[k] for k in keys if k in data}
+    remaining = {k: v for k, v in data.items() if k not in keys}
+    return (extracted, remaining)

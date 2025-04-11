@@ -5,6 +5,7 @@ from crew_brief.sorting import padded_keys
 
 from .mixin import ConsistencyMixin
 from .user_event_row import UserEventRow
+from .common import HEADER
 
 class UserEventRowifier:
     """
@@ -12,13 +13,7 @@ class UserEventRowifier:
     table to the right.
     """
 
-    header = [
-        'eventTimeStamp',
-        'status',
-        'eventType',
-        'eventDetails',
-    ]
-    first_three = header[:3]
+    first_three = HEADER[:3]
 
     def __init__(self, event_details_rowifier=None):
         self.event_details_rowifier = event_details_rowifier or unfold_dict
@@ -139,12 +134,6 @@ class UserEventRowifier:
 
 
 class UserEventsRowifier(ConsistencyMixin):
-    header = [
-        'eventTimeStamp',
-        'status',
-        'eventType',
-        'eventDetails',
-    ]
 
     def __init__(self, user_event_rowifier=None, leg_identifier_labels=None):
         self.user_event_rowifier = user_event_rowifier or UserEventRowifier()

@@ -17,7 +17,7 @@ class UserEventSchema(mm.Schema):
     )
 
     eventType = mm.fields.String(
-        load_default = mm.missing,
+        load_default = None,
     )
 
     status = mm.fields.String(

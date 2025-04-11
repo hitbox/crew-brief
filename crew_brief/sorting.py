@@ -129,3 +129,6 @@ def pad_list(list_, pad_value=None):
         return pad
 
     return [row + padding(row) * (max_length - len(row)) for row in list_]
+
+def expand_dict(dict_):
+    return [kv for item in dict_.items() for kv in item]

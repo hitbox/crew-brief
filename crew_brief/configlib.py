@@ -3,8 +3,20 @@ import logging.config
 import os
 import pickle
 import re
+import types
 
 from . import constants
+
+def add_config_option(parser):
+    """
+    Add common --config option.
+    """
+    parser.add_argument(
+        '--config',
+        help =
+            'Path to the configuration file. If not provided, the'
+            ' CREW_BRIEF_CONFIG environment variable will be used.',
+    )
 
 def from_args(args):
     """
@@ -32,15 +44,6 @@ def from_args(args):
 
     return cp
 
-def iter_numbered_prefix(data, prefix):
-    """
-    Generate key-value pairs of a section whose keys have a prefix or optional
-    digit suffix.
-    """
-    for key, val in data.items():
-        if key.startswith(prefix) and key[len(prefix):].isdigit():
-            yield (key, val)
-
 def instance_from_config(cp, secname, prefix, globals=None, locals=None):
     """
     Eval to instantiate from config.
@@ -51,25 +54,10 @@ def instance_from_config(cp, secname, prefix, globals=None, locals=None):
     kwargs = eval(section.get('kwargs', 'dict()'), globals, locals)
     return class_(*args, **kwargs)
 
-def human_split(string):
-    return string.replace(',', ' ').split()
+def pyfile_config(filename):
+    config = types.ModuleType('config')
+    with open(filename, 'r') as config_file:
+        code = config_file.read()
+    exec(code, config.__dict__)
+    return config
 
-def get_member_re(config):
-    return re.compile(config[constants.NAME]['member'])
-
-def get_tops_and_regexes(cp):
-    """
-    Generate top dirs for os.walk
-    """
-    for _, suffix in iter_numbered_prefix(cp[constants.NAME], 'top'):
-        section = cp[f'top.{suffix}']
-        top = section['top']
-        path_data_regex = re.compile(section['path_pattern'])
-        yield (top, path_data_regex)
-
-def instance_section(section, context):
-    class_ = eval(section['class'], None, context)
-    args = eval(section.get('args', '()'), None, context)
-    kwargs = eval(section.get('kwargs', '{}'), None, context)
-    instance = class_(*args, **kwargs)
-    return instance

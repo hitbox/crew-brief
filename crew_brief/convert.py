@@ -5,6 +5,8 @@ import datetime
 
 from . import constants
 
+NB_SPACE = '\xa0'
+
 class DateTimeConverter:
     """
     Callable tries to convert a string to a datetime against many formats.
@@ -94,7 +96,7 @@ def default_converter():
     )
     return type_converter
 
-def rtype_update(data, converter=None):
+def deep_convert(data, converter=None):
     """
     Recursively try to update types.
     """
@@ -119,7 +121,7 @@ def rtype_update(data, converter=None):
 
         for key, value in items:
             if isinstance(value, str):
-                typed = rtype_update(value, converter)
+                typed = deep_convert(value, converter)
                 if typed is not None:
                     data[key] = typed
 
@@ -127,16 +129,27 @@ def bake_list(value):
     """
     Make a nice string for lists.
     """
-    return '\n'.join(f'● {thing}' for thing in value)
+    if len(value) > 1:
+        return '\n'.join(f'• {thing}' for thing in value)
+    return str(value[0])
+
 
 def to_excel_value(value):
     """
     Convert value for Excel.
     """
     if isinstance(value, (list, tuple)):
-        return bake_list(value)
+        if len(value) == 1:
+            return value[0]
+        elif len(value) > 1:
+            return bake_list(value)
+        else:
+            return value
 
-    if isinstance(value, (dict, set)):
+    if isinstance(value, dict):
+        return str(value)
+
+    if isinstance(value, set):
         return str(value)
 
     if isinstance(value, str):
@@ -152,4 +165,3 @@ def to_excel_value(value):
             value = '\n'.join(words)
 
     return value
-

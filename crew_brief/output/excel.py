@@ -17,7 +17,7 @@ except ImportError:
     win32 = None
 
 from crew_brief import constants
-from crew_brief.type_convert import to_excel_value
+from crew_brief.convert import to_excel_value
 
 NB_SPACE = '\xa0'
 
@@ -34,9 +34,6 @@ success_keys = set([
 
 def styles_from_workbook(source, prefix):
     wb = openpyxl.load_workbook(source)
-
-
-
 
 class ExcelConverter:
     """
@@ -86,8 +83,15 @@ class ExcelConverter:
             'font': openpyxl.styles.Font(
                 bold = True,
             ),
-            'alignment': openpyxl.styles.Alignment(
-                vertical = 'top',
+            'fill': muted_blue_fill,
+            #'alignment': openpyxl.styles.Alignment(
+            #    vertical = 'top',
+            #),
+        },
+        'value_style': {
+            'font': openpyxl.styles.Font(
+                #name = 'Courier New',
+                name = 'Lucida Console',
             ),
         },
         'success_style': {

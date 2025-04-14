@@ -1,6 +1,6 @@
 import marshmallow as mm
 
-from .user_events_schema import UserEventsSchema
+from .user_event import UserEventsFileSchema
 
 class PickleSchema(mm.Schema):
     """
@@ -8,7 +8,7 @@ class PickleSchema(mm.Schema):
     """
 
     member_data = mm.fields.Nested(
-        UserEventsSchema,
+        UserEventsFileSchema,
         # Some zips didn't have the member we wanted.
         missing = None,
         metadata = dict(

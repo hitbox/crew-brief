@@ -2,16 +2,8 @@ import copy
 import logging
 import re
 
-from abc import ABC
-from abc import abstractmethod
-from zipfile import ZipFile
-
-from crew_brief import configlib
 from crew_brief import shapers
-from crew_brief.model import eval_context
 from crew_brief.path import setdefault_for_base_path
-from crew_brief.schema import UserEventsSchema
-from crew_brief.workbook import build_workbook_for_member
 
 from .base import Process
 
@@ -21,11 +13,10 @@ class UpdateUserFriendlyProcess(Process):
     update the ZIP with the newly created Excel file.
     """
 
-    member_schema_class = UserEventsSchema
-
     def __init__(
         self,
         sources,
+        schema,
         writer,
         archive,
         output,
@@ -48,6 +39,7 @@ class UpdateUserFriendlyProcess(Process):
             Styling lookup object.
         """
         self.sources = sources
+        self.schema = schema
         self.writer = writer
         self.archive = archive
         if isinstance(path_data_re, str):
@@ -55,6 +47,7 @@ class UpdateUserFriendlyProcess(Process):
         self.path_data_re = path_data_re
         self.output = output
         self.styling = styling
+        self.shaper = shapers.MemberDataShaper()
 
     def _generate_paths(self, subs):
         """
@@ -64,9 +57,6 @@ class UpdateUserFriendlyProcess(Process):
             for path in source.paths(subs):
                 yield path
 
-    def method_to_yield_the_userevents_memebers(self):
-        raise NotImplementedError
-
     def run(self, subs):
         """
         :param subs:
@@ -74,9 +64,6 @@ class UpdateUserFriendlyProcess(Process):
             for each path.
         """
         logger = logging.getLogger('crew_brief')
-
-        # Schema for ZIP member JSON.
-        member_schema = self.member_schema_class()
 
         # Process members of ZIP files for each generated path.
         for path_data in self._generate_paths(subs):
@@ -97,14 +84,12 @@ class UpdateUserFriendlyProcess(Process):
                     context.update(path_match.groupdict())
 
             # Convert types, keeping original.
-            member_data_typed = member_schema.load(path_data.data)
+            member_data_typed = self.schema.load(path_data.data)
+
+            # Reshape typed data.
+            self.shaper(member_data_typed)
 
             # Build in-memory Excel workbook.
-            # TODO
-            # - path_data.data seems to be member_data_typed
-
-            shaper = shapers.MemberDataShaper()
-            shaper(member_data_typed)
             output_data = self.output(path_data.data, member_data_typed)
 
             # Call configured writer with new workbook data.

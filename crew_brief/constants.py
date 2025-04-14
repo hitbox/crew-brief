@@ -8,9 +8,6 @@ ENVIRON_CONFIG_KEY = f'{NAME.upper()}_CONFIG'
 
 ZDATETIME_FORMAT = '%Y-%m-%dT%H:%M:%S.%fZ'
 
-USER_EVENTS_KEY = 'userEvents'
-EVENT_DETAILS_KEY = 'eventDetails'
-
 # legIdentifier parts as they appear in the original string.
 LEG_IDENTIFIER_PARTS = [
     'company_code',

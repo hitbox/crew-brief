@@ -1,7 +1,9 @@
 import marshmallow as mm
 
 from crew_brief import constants
-from crew_brief import type_convert
+from crew_brief import convert
+from crew_brief.model.user_event import UserEvent
+from crew_brief.model.user_event import UserEventsFile
 
 from .field import DataStringField
 from .field import IntOrStringField
@@ -32,14 +34,16 @@ class UserEventSchema(mm.Schema):
     @mm.post_load
     def post_load(self, data, **kwargs):
         """
-        Recursively update string values for detected types.
+        Recursively update string values for detected types in eventDetails;
+        and return an instance of the model.
         """
         event_details = data['eventDetails']
-        type_convert.rtype_update(event_details)
-        return data
+        convert.deep_convert(event_details)
+        instance = UserEvent(**data)
+        return instance
 
 
-class UserEventsSchema(mm.Schema):
+class UserEventsFileSchema(mm.Schema):
     """
     Data from the JSON file UserEvents.txt
     """
@@ -48,7 +52,7 @@ class UserEventsSchema(mm.Schema):
         part_names = constants.LEG_IDENTIFIER_PARTS,
         sep = '.',
         part_types = dict(
-            date = type_convert.DateConverter(
+            date = convert.DateConverter(
                 constants.LEG_IDENTIFIER_DATE_FORMAT
             ),
         ),
@@ -76,3 +80,8 @@ class UserEventsSchema(mm.Schema):
                 'If present, userEvents is a list of many different dicts.',
         ),
     )
+
+    @mm.post_load
+    def post_load(self, data, **kwargs):
+        instance = UserEventsFile(**data)
+        return instance

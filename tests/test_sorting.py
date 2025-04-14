@@ -56,5 +56,47 @@ class TestPadList(unittest.TestCase):
         self.assertEqual(result, expect)
 
 
+class TestJoinTables(unittest.TestCase):
+
+    def test_join_tables(self):
+        self.assertEqual(
+            sorting.join_tables(
+                [[0, 1, 2],
+                 [3, 4],
+                 [5, 6, 7, 8],
+                 [9]],
+                ['abc',
+                 'de',
+                 'fghi',
+                 'j']
+            ),
+            [[0, 1, 2, None, 'a', 'b', 'c', None],
+             [3, 4, None, None, 'd', 'e', None, None],
+             [5, 6, 7, 8, 'f', 'g', 'h', 'i'],
+             [9, None, None, None, 'j', None, None, None]],
+        )
+
+
+class TestDictSplit(unittest.TestCase):
+
+    def setUp(self):
+        self.splitter = sorting.DictSplit(['a'], ['b'], ['c'])
+
+    def test_dict_split(self):
+        result = self.splitter({'a': 1, 'b': 2, 'c': 3, 'd': 4})
+        expect = {
+            ('a',): {'a': 1},
+            ('b',): {'b': 2},
+            ('c',): {'c': 3},
+            ('d',): {'d': 4},
+        }
+        self.assertEqual(result, expect)
+
+    def test_dict_split_empty(self):
+        result = self.splitter({})
+        expect = {}
+        self.assertEqual(result, expect)
+
+
 if __name__ == '__main__':
     unittest.main()

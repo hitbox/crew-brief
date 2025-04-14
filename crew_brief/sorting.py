@@ -108,13 +108,33 @@ def for_keys(data, keys):
     for row in data:
         yield {key: val for key, val in row.items() if key in keys}
 
-def split_dict(data, keys):
-    extracted = {k: data[k] for k in keys if k in data}
-    remaining = {k: v for k, v in data.items() if k not in keys}
+def split_dict(data, keys, case_sensitive=True):
+    """
+    Split dictionary `data` into two dictionaries:
+    - one with keys in `keys`
+    - one with the remaining keys
+
+    If case_sensitive is False, matching is case-insensitive.
+    """
+    if not case_sensitive:
+        # Map lowercase versions of keys for case-insensitive matching
+        key_map = {k.lower(): k for k in data}
+        keys_lower = [k.lower() for k in keys]
+
+        extracted_keys = [key_map[k] for k in keys_lower if k in key_map]
+    else:
+        extracted_keys = [k for k in keys if k in data]
+
+    extracted = {k: data[k] for k in extracted_keys}
+    remaining = {k: v for k, v in data.items() if k not in extracted_keys}
     return (extracted, remaining)
 
-def pad_list(list_, pad_value=None):
+def pad_list(list_, pad_value=None, min_length=None):
     max_length = max(map(len, list_))
+
+    if min_length is not None:
+        if max_length < min_length:
+            max_length = min_length
 
     # Allow different row types or enforce all the same?
     # For now, we allow different.
@@ -131,4 +151,44 @@ def pad_list(list_, pad_value=None):
     return [row + padding(row) * (max_length - len(row)) for row in list_]
 
 def expand_dict(dict_):
+    """
+    Expand dict into a list of alternating keys and values.
+    """
     return [kv for item in dict_.items() for kv in item]
+
+def is_container(value):
+    return isinstance(value, (dict, list, tuple))
+
+def is_populated(value):
+    return is_container(value) and value
+
+def filter_dict(dict_):
+    """
+    Return new dict with only non-container values or populated
+    containers.
+    """
+    return {k: v for k, v in dict_.items() if not is_container(v) or is_populated(v)}
+
+def join_tables(*tables, pad_value=None):
+    """
+    Join multiple tables (list of rows), row by row, padding cells so that all
+    rows are rectangular. Assumes all tables have the same number of rows.
+    """
+    result = []
+    max_cols = [max(map(len, table), default=0) for table in tables]
+    for table in zip(*tables):
+        padded_rows = [
+            list(row) + [pad_value] * (max_cols[i] - len(row))
+            for i, row in enumerate(table)
+        ]
+        result.append([cell for row in padded_rows for cell in row])
+    return result
+
+def headerize(table):
+    keys = sorted(set(key for row in table for key in row))
+    yield keys
+    for row in table:
+        yield [row.get(key) for key in keys]
+
+def max_cols(rows):
+    return max(map(len, rows))

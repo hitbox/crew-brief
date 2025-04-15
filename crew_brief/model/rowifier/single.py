@@ -1,25 +1,29 @@
-import openpyxl
-
-from crew_brief.output.excel import ExcelConverter
 from crew_brief.sorting import join_tables
 from crew_brief.sorting import max_cols
 
 from .excel_row import ExcelRow
 from .mixin import ConsistencyMixin
-from .style import KeyStyle
-from .style import StatusStyle
-from .style import ValueStyle
-
-header_style = ExcelConverter.styles['header_style']
-full_datetime_style = ExcelConverter.styles['full_datetime_style']
 
 class SingleRowifier(ConsistencyMixin):
     """
     Produce key-value rows for output.
     """
 
-    def __init__(self, row_splitter):
+    def __init__(
+        self,
+        row_splitter,
+        header_style = None,
+        main_keys_styles = None,
+        key_style = None,
+        middle_value_style = None,
+        right_value_style = None,
+    ):
         self.row_splitter = row_splitter
+        self.header_style = header_style
+        self.main_keys_styles = main_keys_styles
+        self.key_style = key_style
+        self.middle_value_style = middle_value_style
+        self.right_value_style = right_value_style
 
     def __call__(self, member_data, original_data):
         """
@@ -49,13 +53,13 @@ class SingleRowifier(ConsistencyMixin):
         # Header Styling
         header_styles = (
             # Main keys header
-            [header_style] * len(self.row_splitter.main_keys)
+            [self.header_style] * len(self.row_splitter.main_keys)
             # Middle, eventDetails header with merge for max row
-            + [header_style] + [None] * (len(middle_header) - 1)
+            + [self.header_style] + [None] * (len(middle_header) - 1)
             # Right side of eventDetails
-            + [header_style] * len(self.row_splitter.right_side_keys)
+            + [self.header_style] * len(self.row_splitter.right_side_keys)
             # Original
-            + [header_style]
+            + [self.header_style]
         )
 
         excel_header_row = ExcelRow(
@@ -70,15 +74,9 @@ class SingleRowifier(ConsistencyMixin):
             excel_header_row.merge = (4, end_column)
         yield excel_header_row
 
-        # Yield formatted data rows.
         assert all(len(row) == 3 for row in main_rows)
 
-        main_keys_styles = [
-            full_datetime_style,
-            StatusStyle(),
-            None,
-        ]
-
+        # Yield formatted data rows.
         max_right_rows_cols = max_cols(right_rows)
         data_rows = join_tables(
             main_rows,
@@ -88,23 +86,30 @@ class SingleRowifier(ConsistencyMixin):
         )
 
         # Write row data.
-        adaptive_value_style = ValueStyle()
-        adaptive_right_style = ValueStyle(
-            fill = openpyxl.styles.PatternFill(
-                # Light Orange
-                start_color = 'FFEFD5',
-                end_color = 'FFEFD5',
-                fill_type = 'solid',
-            ),
-        )
         for row_data in data_rows:
-            styles = main_keys_styles[:]
+            styles = []
+
+            if self.main_keys_styles:
+                if len(self.main_keys_styles) != len(self.row_splitter.main_keys):
+                    raise ValueError(
+                        'main_keys_styles must be the same length as the'
+                        ' splitter for main keys.')
+                styles.extend(self.main_keys_styles)
+            else:
+                styles.extend([None] * len(self.row_splitter.main_keys))
 
             # Middle, alternating keys and values.
-            styles += [KeyStyle(), adaptive_value_style] * (max_middle_cols // 2)
+            if self.key_style and self.middle_value_style:
+                styles += [self.key_style, self.middle_value_style] * (max_middle_cols // 2)
+            else:
+                styles += [None, None] * (max_middle_cols // 2)
 
             # Right side formatting without key name on row.
-            styles += [adaptive_right_style] * max_right_rows_cols
+            if self.right_value_style:
+                #styles += [self.right_value_style] * max_right_rows_cols
+                styles.extend(self.right_value_style)
+            else:
+                styles += [None] * max_right_rows_cols
 
             # Formatting for original column data
             styles += [None]
@@ -120,15 +125,15 @@ class SingleRowifier(ConsistencyMixin):
         yield ExcelRow(tuple())
         yield ExcelRow(
             ('legIdentifier',),
-            styles = [header_style],
+            styles = [self.header_style],
             merge = (1, 2),
         )
         for key, val in member_data['legIdentifier'].items():
             yield ExcelRow(
                 (key, val),
                 styles = [
-                    KeyStyle(),
-                    adaptive_value_style,
+                    self.key_style,
+                    self.middle_value_style,
                 ],
             )
 
@@ -137,7 +142,7 @@ class SingleRowifier(ConsistencyMixin):
         yield ExcelRow(
             ('userId', member_data['userId']),
             styles = [
-                KeyStyle(),
-                adaptive_value_style,
+                self.key_style,
+                self.middle_value_style,
             ],
         )

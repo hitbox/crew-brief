@@ -16,14 +16,10 @@ class RowSplit:
         self.case_sensitive = case_sensitive
 
     def __call__(self, user_events1, original_data):
-        # Split the rows of dicts into two lists or rows. One for the unnested
+        # Split the rows of dicts into two lists of rows. One for the unnested
         # main data and one for the nested event details dicts.
         splits = (split_dict(row, self.main_keys, self.case_sensitive) for row in user_events1)
         main_rows, details_rows = zip(*splits)
-
-        # Update dicts for special structures.
-        #details_rows = [user_event.to_excel() for user_event in details_rows]
-        #update_dicts(details_rows)
 
         # Split middle and right sides.
         gen = (
@@ -34,7 +30,7 @@ class RowSplit:
 
         # Lists of values for main data.
         main_rows = [[data[key] for key in self.main_keys] for data in main_rows]
-        main_rows = [row + [None] * (3 - len(row)) for row in main_rows]
+        main_rows = pad_list(main_rows, min_length=3)
 
         # Expand into rows of alternating keys and values.
         middle_rows = [
@@ -58,15 +54,6 @@ class RowSplit:
         return (main_rows, middle_rows, right_rows, original_details_rows)
 
 
-def update_dicts(details_rows):
-    # TODO
-    # - Remove this in favor of something just before cells are written to the
-    #   worksheet.
-    for detail in details_rows:
-        for key, val in detail['eventDetails'].items():
-            if isinstance(val, dict) and 'name' in val and 'rank' in val:
-                detail['eventDetails'][key] = f'{val["rank"]} {val["name"]}'
-
 def json_string(data):
     order = [
         'eventTimeStamp',
@@ -83,29 +70,3 @@ def json_string(data):
 
     keys = sorted(data, key=sort_key)
     return json.dumps({k: data[k] for k in keys})
-
-def keys_gt(data, *keys, value=0):
-    """
-    All keys exist in data and their values are greater than `value`.
-    """
-    return all(key in data and data[key] > value for key in keys)
-
-def is_reasonable(val):
-    """
-    Key-value pairs have reasonable data. Intended to filter out useless info.
-    """
-    return keys_gt(val, 'minutes', 'fuel')
-
-def format_dict(data):
-    result = {}
-    for key, val in data.items():
-        if is_container(val):
-            if val:
-                # Populated container
-                if not is_reasonable(val):
-                    continue
-                # Include populated container
-                result[key] = val
-        else:
-            result[key] = val
-    return result

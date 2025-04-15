@@ -21,7 +21,6 @@ class UpdateUserFriendlyProcess(Process):
         archive,
         output,
         path_data_re = None,
-        styling = None,
     ):
         """
         :param sources:
@@ -35,8 +34,6 @@ class UpdateUserFriendlyProcess(Process):
             Regex with named captures for data embedded into the paths.
         :param output:
             Object that writes output.
-        :param styling:
-            Styling lookup object.
         """
         self.sources = sources
         self.schema = schema
@@ -46,7 +43,6 @@ class UpdateUserFriendlyProcess(Process):
             path_data_re = compile_regex(path_data_re)
         self.path_data_re = path_data_re
         self.output = output
-        self.styling = styling
         self.shaper = shapers.MemberDataShaper()
 
     def _generate_paths(self, subs):

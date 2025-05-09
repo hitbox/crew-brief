@@ -111,7 +111,7 @@ class WalkFilesSource(Source, WalkMixin):
         """
         :param top: Top dir argument for os.walk.
         """
-        self.normpath = normpath
+        self.top = top
         if walk_args is None:
             walk_args = {}
         self.walk_args = walk_args

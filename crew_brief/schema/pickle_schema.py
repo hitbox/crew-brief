@@ -10,22 +10,22 @@ class PickleSchema(mm.Schema):
     member_data = mm.fields.Nested(
         UserEventsFileSchema,
         # Some zips didn't have the member we wanted.
-        missing = None,
-        metadata = dict(
-            description = 'JSON data from the matching member file.',
-        ),
+        load_default = None,
+        metadata = {
+            'description': 'JSON data from the matching member file.',
+        },
     )
 
     path = mm.fields.String(
         required = True,
-        metadata = dict(
-            description = 'Path to ZIP.',
-        ),
+        metadata = {
+            'description': 'Path to ZIP.',
+        },
     )
 
     path_data = mm.fields.Dict(
         required = True,
-        metadata = dict(
-            description = 'Data parsed from the path.',
-        ),
+        metadata = {
+            'description': 'Data parsed from the path.',
+        },
     )

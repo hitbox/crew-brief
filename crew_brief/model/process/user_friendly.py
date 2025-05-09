@@ -6,8 +6,9 @@ from crew_brief import shapers
 from crew_brief.path import setdefault_for_base_path
 
 from .base import Process
+from .mixin import PathMixin
 
-class UpdateUserFriendlyProcess(Process):
+class UpdateUserFriendlyProcess(Process, PathMixin):
     """
     Generate a user-friendly Excel file from JSON data stored in ZIP files and
     update the ZIP with the newly created Excel file.
@@ -44,14 +45,6 @@ class UpdateUserFriendlyProcess(Process):
         self.path_data_re = path_data_re
         self.output = output
         self.shaper = shapers.MemberDataShaper()
-
-    def _generate_paths(self, subs):
-        """
-        Generator for all paths from all sources.
-        """
-        for source in self.sources:
-            for path in source.paths(subs):
-                yield path
 
     def run(self, subs):
         """

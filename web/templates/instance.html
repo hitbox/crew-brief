@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+    {% if edit_url %}<a href="{{ edit_url }}">Edit...</a>{% endif %}
+    {% if page_title %}{{ page_title }}{% endif %}
+    {% if stmt is not none %}<pre class="data sql">{{ stmt }}</pre>{% endif %}
+    <dl class="nice-dl">{% for key in definition_list.keys %}
+        <dt>{{ key.render_dt() }}</dt>
+        <dd>{{ key.render_dd(instance) }}</dd>
+    {% endfor %}</dl>
+{% endblock %}

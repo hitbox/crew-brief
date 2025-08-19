@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="card-container">
+        <div class="card">
+            <h2>Statistics</h2>
+            <table>
+                <thead>
+                    <tr>{% for col in stats_table.columns %}
+                        <th>{{ col.render_th() }}</th>
+                    {% endfor %}</tr>
+                </thead>
+                <tbody>
+                    {% for stats_data in stats.by_type_and_zip %}<tr>
+                        {% for col in stats_table.columns %}
+                            <td{% if col.key == 'count' %} class="data number"{% endif %}>
+                            {{ col.render_td(stats_data) }}
+                            </td>{% endfor %}
+                    </tr>{% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th>Total</th>
+                        <td colspan="2" class="data number">{{ '{:,}'.format(stats.total_files) }}</td>
+                    </tr>
+                    <tr>
+                        <th>Unparsed</th>
+                        <td class="data number">
+                            {{ '{:.2%}'.format(stats.unparsed_count / stats.total_files) }}
+                        </td>
+                        <td class="data number">
+                            {{ '{:,}'.format(stats.unparsed_count) }}
+                        </td>
+                    </tr>
+            </table>
+        </div>
+        <div class="card">
+            <h3>Notes</h3>
+            <p>Parsed means a file has a related flight leg identifier.</p>
+        </div>
+    </div>
+    <div class="card-container">
+        <div class="card">
+            <h2>Complete ZIP Calendar</h2>
+            <nav>
+                <ul>
+                    <li>
+                        <a href="{{ url_for('groupby.complete_by_year', year=2025) }}">Yearly calendar counts</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+        {#
+        <div class="card">
+            <h2>Find</h2>
+            <nav>
+                <ul>{% for rule in current_app.url_map.iter_rules() %}
+                    {% if rule.endpoint.startswith('find.') %}
+                        <li><a href="{{ url_for(rule.endpoint) }}">{{ rule.endpoint }}</a></li>
+                    {% endif %}
+                {% endfor %}</ul>
+            </nav>
+        </div>
+        #}
+        <div class="card">
+            <h2>Parsing</h2>
+            <nav>
+                <ul>
+                    <li><a href="{{ url_for('groupby.parsed_files', is_zipfile='false') }}">Parsed Not-ZIP Files</a></li>
+                    <li><a href="{{ url_for('groupby.parsed_files') }}">Parsed Files</a></li>
+                    <li><a href="{{ url_for('groupby.is_complete_zip') }}">Complete ZIP files</a></li>
+                    <li><a href="{{ url_for('groupby.is_zipfile') }}">ZIP files</a></li>
+                    <li><a href="{{ url_for('groupby.recent_zip_complete') }}">Recent complete ZIP files</a></li>
+                </ul>
+            </nav>
+        </div>
+        <div class="card">
+            <h2>Grouped By</h2>
+            <nav>
+                <ul>
+                    <li><a href="{{ url_for('groupby.missing_members_groups') }}">Missing members of ZIP files.</a></li>
+                    <li><a href="{{ url_for('groupby.list') }}">File Walker</a></li>
+                    <li><a href="{{ url_for('groupby.unparsed') }}">Unparsed</a></li>
+                    <li><a href="{{ url_for('groupby.leg_identifier') }}">Leg Identifier</a></li>
+                </ul>
+            </nav>
+        </div>
+        <div class="card">
+            <h2>Database Objects</h2>
+            <nav>
+                <ul>{% for class_name, model in model_names %}
+                    <li><a href="{{ url_for('model.' + model.__tablename__ + '.table') }}">{{ class_name }}</a></li>{% endfor %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+{% endblock %}

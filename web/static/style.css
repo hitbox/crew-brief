@@ -1,0 +1,320 @@
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+html[data-theme="light"] {
+    --bg-color: #ffffff;
+    --text-color: #222222;
+    --link-color: #1a73e8;
+}
+
+html[data-theme="dark"] {
+    --bg-color: #313131;
+    --text-color: #eeeeee;
+    --link-color: #8ab4f8;
+}
+
+html {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+}
+
+body {
+    font-family: sans-serif;
+    font-size: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+}
+
+body::after {
+    content: "";
+    display: block;
+    height: 30vh;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-size: revert;
+}
+
+#theme-select {
+    width: auto;
+    min-width: 0;
+}
+
+a {
+    color: var(--link-color);
+    text-decoration: none;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 1rem 0;
+}
+
+th, td {
+    border: 1px solid black;
+}
+
+th {
+    font-weight: bold;
+    padding: .5rem;
+}
+
+td {
+    vertical-align: top;
+    padding: .25rem .5rem;
+}
+
+ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+ul.object-list {
+    overflow: hidden;
+}
+
+ul.object-list li {
+    margin: 0.5rem 0;
+}
+
+ul.token-list {
+    display: flex;
+    flex-direction: row;
+    justify-content: start;
+    gap: 0 1ch;
+    flex-wrap: wrap;
+}
+
+nav.nav-bar > ul {
+    display: flex;
+}
+
+nav.nav-bar > ul > li:not(:last-child) {
+    margin-right: 1rem;
+}
+
+nav.pagination {
+    /* pagination container */
+    display: flex;
+    justify-content: center;
+    margin: 1rem 0;
+}
+
+ul.pagination {
+    /* list of pagination */
+    display: flex;
+    gap: 1rem;
+}
+
+.page-item {
+    /* container for .page-link */
+}
+
+.page-link {
+    display: inline-block;
+    padding: 0 .5rem;
+}
+
+.month {
+    margin: 1rem;
+}
+
+.year-months {
+    display: grid;
+    grid-template-columns: repeat(3, auto);
+}
+
+.month-days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: .5rem;
+}
+
+.month-name, .weekday {
+    text-align: center;
+}
+
+.month-name.is-same {
+    color: white;
+    background-color: orange;
+}
+
+.date {
+    padding: .25rem;
+}
+
+.day {
+    text-align: center;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid black;
+    padding-bottom: .25rem;
+}
+
+.date.is-today {
+    outline: 2px solid #2a9fd6;
+    border-radius: 4px;
+}
+
+a.date:hover {
+    color: white;
+    background-color: Orange;
+    border-radius: 4px;
+}
+
+.date.is-today div:first-child {
+  font-weight: bold;
+}
+
+.number {
+    text-align: right;
+}
+
+dl.nice-dl {
+    display: grid;
+    grid-template-columns: repeat(2, auto);
+    grid-gap: .1rem 1rem;
+}
+
+.data {
+    font-family: monospace;
+}
+
+.abbreviated {
+    display: none;
+}
+
+.number {
+    text-align: right;
+}
+
+pre {
+    margin: 0;
+}
+
+.data.regex {
+    white-space: pre-wrap; /* allow wrap but preserve spacing */
+    word-break: break-all; /* prevent overflow from long tokens */
+    background-color: #f9f9f9;
+    padding: 4px 6px;
+    border-radius: 4px;
+    color: #333;
+}
+
+form .form-fields {
+    display: grid;
+    /* label, field, errors */
+    grid-template-columns: max-content 1fr auto;
+    gap: 1rem;
+}
+
+form .form-buttons {
+    /* buttons in the same column as inputs. */
+    grid-column: 2;
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 2ch;
+    gap: 1ch;
+}
+
+input:not([type="submit"]) {
+    font-family: monospace;
+}
+
+input:not([type="submit"]), select, textarea, button {
+    width: 100%;        /* Expand horizontally */
+    max-width: 100%;    /* Prevent overflow */
+    padding: 0.5em;     /* Nice consistent spacing */
+}
+
+input:not([type="submit"]), select, button {
+    height: 4ch;
+}
+
+input[type=submit], button {
+    /* why are input expanding vertically to fill grid when errors are present? */
+    padding: 1ch 2ch;
+    min-width: 16ch;
+}
+
+.filepath {
+    font-family: monospace;
+    word-break: break-all;
+}
+
+.key-index:not(:last-child) {
+    margin-right: 0.5em;
+}
+
+.card-container {
+    display: flex;
+    flex-wrap: wrap;
+    max-width: 70vw;
+}
+
+.card {
+    margin: 1rem;
+}
+
+.file-group:not(:last-child) {
+    margin-bottom: 1rem;
+}
+
+.toast {
+    visibility: hidden;
+    position: fixed;
+    bottom: 1rem;
+    right: 1rem;
+    z-index: 1000;
+}
+
+.toast.show {
+    visibility: visible;
+}
+
+button.data {
+    white-space: normal;
+    word-wrap: break-word;
+    width: 100%;
+    height: auto;
+    max-width: 80ch;
+}
+
+.oneline {
+    white-space: nowrap;
+}
+
+.align-left {
+    text-align: left;
+}
+
+.alert {
+  padding: 1em;
+  margin: 0.5em 0;
+  border-radius: 4px;
+}
+
+.alert-success {
+    background: #d4edda;
+    color: #155724;
+}
+
+.alert-error {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.alert-info {
+    background: #d1ecf1;
+    color: #0c5460;
+}
+
+.sql {
+    white-space: pre-wrap;
+    width: 80ch;
+}

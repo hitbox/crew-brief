@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+
+{% from "render.html" import render_month_zip_count_calendar %}
+
+
+{% block content %}
+    {% if stmt is not none %}<pre class="data sql">{{ stmt }}</pre>{% endif %}
+    <h2>Complete ZIP Counts Calendar {{ year }}</h2>
+    <nav class="nav-bar">
+        <ul>
+            {#
+            <li><a href="{{ url_for(request.endpoint, year=year-1) }}">{{ year - 1 }}</a></li>
+            <li><a href="{{ url_for(request.endpoint, year=year+1) }}">{{ year + 1 }}</a></li>
+            #}
+        </ul>
+    </nav>
+    <p>View the number of completed ZIP files for each day of the year. Click a count to see a detailed table of entries for that date.</p>
+    {{ render_month_zip_count_calendar(month_zip_count, for_date) }}
+{% endblock %}

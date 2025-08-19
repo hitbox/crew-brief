@@ -2,7 +2,11 @@ import re
 
 import marshmallow as mm
 
-class DataStringField(mm.fields.Field):
+from marshmallow.fields import Bool
+from marshmallow.fields import Field
+from marshmallow.fields import List
+
+class DataStringField(Field):
     """
     Split string on separator and convert to dict.
     """
@@ -27,7 +31,8 @@ class DataStringField(mm.fields.Field):
         """
         Split string on separator and join names into a dict.
         """
-        value_data = dict(zip(self.part_names, value.split(self.sep)))
+        values = value.split(self.sep)
+        value_data = dict(zip(self.part_names, values))
         if self.part_types:
             for key, func in self.part_types.items():
                 key_value = value_data[key]
@@ -35,7 +40,7 @@ class DataStringField(mm.fields.Field):
         return value_data
 
 
-class IntOrStringField(mm.fields.Field):
+class IntOrStringField(Field):
     """
     Try make integer falling back to string.
     """
@@ -53,7 +58,7 @@ class IntOrStringField(mm.fields.Field):
         raise mm.ValidationError("Invalid type: Must be a string or integer.")
 
 
-class RegexField(mm.fields.Field):
+class RegexField(Field):
 
     def _deserialize(self, value, attr, obj, **kwargs):
         if not isinstance(value, str):
@@ -67,7 +72,7 @@ class RegexField(mm.fields.Field):
         return regex
 
 
-class RegexListField(mm.fields.List):
+class RegexListField(List):
     """
     Field assembles keys that match a regex, into values in a list.
     """
@@ -80,3 +85,27 @@ class RegexListField(mm.fields.List):
         if not isinstance(value, dict):
             raise ValueError('Expected dictionary.')
         return [key for key in value.keys() if self.regex.match(key)]
+
+
+class IsPreflight(Bool):
+    """
+    """
+    TRUE_STRINGS = {'_preflight'}
+
+    def _deserialize(self, value, attr, data, **kwargs):
+        if value is None:
+            return False
+        elif isinstance(value, str):
+            if value.lower() in self.TRUE_STRINGS:
+                return True
+            else:
+                return False
+        return super()._deserialize(value, attr, data, **kwargs)
+
+def ofp_version_field(sep):
+    field = DataStringField(
+        part_names = ['major', 'minor', 'patch'],
+        sep = sep,
+        part_types = {'major': int, 'minor': int, 'patch': int},
+    )
+    return field

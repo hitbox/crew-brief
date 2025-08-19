@@ -28,12 +28,12 @@ def argument_parser():
 
     return parser
 
-def run_from_args():
+def run_from_args(argv=None):
     """
     Parse command line and run sub-command.
     """
     parser = argument_parser()
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
     func = args.func
     delattr(args, 'func')
     return func(args)

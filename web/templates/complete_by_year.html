@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+    {% if stmt is not none %}<pre class="data sql">{{ stmt }}</pre>{% endif %}
+    <h2>Complete ZIP Counts Calendar {{ year }}</h2>
+    <nav class="nav-bar">
+        <ul>
+            <li><a href="{{ url_for(request.endpoint, year=year-1) }}">{{ year - 1 }}</a></li>
+            <li><a href="{{ url_for(request.endpoint, year=year+1) }}">{{ year + 1 }}</a></li>
+        </ul>
+    </nav>
+    <p>View the number of completed ZIP files for each day of the year. Click a count to see a detailed table of entries for that date.</p>
+    <div class="year-months">{% for month in year_data %}
+        <section class="month">
+            <h3 class="month-name{% if month.is_same %} is-same{% endif %}">{{ month.name }}</h3>
+            <div class="month-days">
+                {# weekday header #}
+                {% for weekday in weekdays %}<div class="weekday">{{ weekday.abbr }}</div>{% endfor %}
+                {# all days of month #}
+                {% for dayobj in month.days %}
+                    {% set count = for_date.get(dayobj.date) %}
+                    {% set is_link = count is not none %}
+                    {% set tag = 'a' if is_link else 'div' %}
+                    {% set url = url_for('groupby.is_complete_zip_for_date', date=dayobj.date) if is_link else None %}
+                    <{{ tag }}
+                        {% if is_link %}href="{{ url }}"{% endif %}
+                        class="date number
+                               {% if dayobj.is_same %} is-same{% endif %}
+                               {% if dayobj.is_today %} is-today{% endif %}
+                               {% if not is_link %} no-data{% endif %}">
+                        <div{% if dayobj.is_same %} class="day"{% endif %}>{{ dayobj.day if dayobj.is_same }}</div>
+                        <div class="count">
+                            {% if is_link %}
+                                {{ count|short_number }}
+                            {% endif %}
+                        </div>
+                    </{{ tag }}>
+                {% endfor %}
+        </section>
+    {% endfor %}</div>
+{% endblock %}

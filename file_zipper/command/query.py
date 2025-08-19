@@ -4,11 +4,7 @@ import difflib
 import sqlalchemy.orm
 
 from file_zipper import configlib
-from file_zipper.model import ExcludedPath
-from file_zipper.model import FileType
-from file_zipper.model import Glob
 from file_zipper.model import Path
-from file_zipper.model import Regex
 
 sa = sqlalchemy
 

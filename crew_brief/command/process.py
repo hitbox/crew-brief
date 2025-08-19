@@ -7,14 +7,19 @@ def add_parser(subparsers):
     """
     Add sub-command parser for main run.
     """
-    parser = subparsers.add_parser(
+    process_parser = subparsers.add_parser(
         'process',
         help = process.__doc__,
     )
-    configlib.add_config_option(parser)
-    parser.set_defaults(
-        func = process,
+    configlib.add_config_option(process_parser)
+    process_subparsers = process_parser.add_subparsers()
+
+    newfiles_parser = process_subparsers.add_parser(
+        'newfiles',
+        help = newfiles.__doc__,
     )
+    configlib.add_config_option(newfiles_parser)
+    newfiles_parser.set_defaults(func=newfiles)
 
 def substitutions():
     """
@@ -29,6 +34,12 @@ def substitutions():
         'yesterday': today - one_day,
     }
     return subs
+
+def newfiles(args):
+    """
+    Discover and save new files.
+    """
+    print('Hello!')
 
 def process(args):
     """

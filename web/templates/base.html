@@ -1,0 +1,55 @@
+{% extends "skeleton.html" %}
+
+
+{% block head %}
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    {# favicon #}
+    <link rel="icon" href="{{ url_for('static', filename='crew-brief.svg') }}" type="image/svg+xml">
+    {# style #}
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    {# javascript #}
+    <script type="module" src="{{ url_for('static', filename='site.js') }}" defer></script>
+    {% if js_config %}<script>
+            {% for key, val in js_config|items %}const {{ key.upper() }} = {{ val|tojson }};{% endfor %}
+    </script>{% endif %}{# js_config #}
+    <title>{% block title %}{{ title }}{% if subtitle %} - {{ subtitle }}{% endif %}{% endblock %}</title>
+{% endblock %}
+
+
+{% block body %}
+    <header>
+        <h1>
+            {% block header %}{{ header }}{% endblock %}
+            <span>
+                <select id="theme-select">
+                    <option value="light">🌞 </option>
+                    <option value="dark">🌙 </option>
+                </select>
+            </span>
+        </h1>
+    </header>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-container">
+                {% for category, message in messages %}<div class="alert alert-{{ category }}">
+                    {{ message | safe }}
+                </div>{% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+    <main>
+        {% block topnav %}{% if breadcrumbs %}<nav>
+            <ul class="nice-list">{% for href, text in breadcrumbs %}
+            <li><a href="{{ href }}">{{ text }}</a></li>{% endfor %}
+        </ul></nav>{% endif %}{% endblock topnav %}
+        {% if subtitle %}<h2>{{ subtitle }}</h2>{% endif %}
+        {% if description %}<p>{{ description }}</p>{% endif %}
+        {% block content %}{% endblock %}
+    </main>
+    <footer>{% block footer %}{% endblock %}</footer>
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="toast" class="toast" role="alert"></div>
+        {# many bootstrap toast features not used #}
+    </div>
+{% endblock %}

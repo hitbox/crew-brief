@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+
+{% from "render.html" import render_pagination %}
+{% from "render.html" import render_total %}
+
+
+{% block content %}
+    {% if stmt is not none %}<pre class="data sql">{{ stmt }}</pre>{% endif %}
+    <p>Files grouped by leg identifiers and ordered by origin date, in descending order.</p>
+    <p>Each non-ZIP file would be added to each ZIP file.</p>
+    <h2>Leg Identifier</h2>
+    <h3>{{ render_total(pagination.total) }}</h3>
+    <div class="file-groups">{% for leg_identifier in pagination %}
+        <section class="file-group">
+            <div>
+                {% if leg_identifier %}
+                    <a href="{{ url_for_instance(leg_identifier) }}">{{ leg_identifier }}</a>
+                {% else %}
+                    {{ leg_identifier }}
+                {% endif %}
+            </div>
+            <div>{% for leg_file in leg_identifier.matching_files %}
+                <div class="data filepath">{{ leg_file }}</div>
+            {% endfor %}</div>
+        </section>
+    {% endfor %}</div>
+    {% if pagination.pages > 1 %}
+    {{ render_pagination(pagination, request.endpoint) }}
+    {% endif %}
+{% endblock %}

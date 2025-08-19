@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+
+{% from "render.html" import render_table_and_pagination %}
+
+
+{% block content %}
+    {% if page_title %}{{ page_title }}{% endif %}
+    {% if model_class is defined %}<h3>{{ model_class.__name__ }}</h3>{% endif %}
+    {% if stmt is not none %}<pre class="data sql">{{ stmt }}</pre>{% endif %}
+    {% if new_url %}<div><a href="{{ new_url }}">New instance of {{ model_class.__tablename__ }}</a></div>{% endif %}
+    {% if query_form %}<form id="{{ query_form_id }}" method="get">
+        <input type="submit" value="Filter/Sort">
+        <a href="{{ url_for(request.endpoint) }}">Clear</a>
+    </form>{% endif %}
+    {{ render_table_and_pagination(pagination, table) }}
+{% endblock %}

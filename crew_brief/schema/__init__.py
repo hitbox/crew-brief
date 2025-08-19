@@ -1,2 +1,5 @@
+from .crew_brief_archive_schema import CrewBriefArchiveSchema
+from .lcb_archive_schema import LCBArchiveSchema
+from .log_level_pilot_docs_schema import LogLevelPilotDocsSchema
 from .pickle_schema import PickleSchema
 from .user_event import UserEventsFileSchema

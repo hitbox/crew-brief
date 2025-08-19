@@ -1,4 +1,15 @@
 import os
+import sys
+
+app_dir = os.path.dirname(__file__)
+project_dir = os.path.dirname(app_dir)
+instance_dir = os.path.join(project_dir, 'instance')
+config_dir = os.path.join(instance_dir, 'config')
+logging_dir = os.path.join(instance_dir, 'logging')
+
+executable_dir = os.path.dirname(sys.executable)
+pythonw_path = os.path.normpath(os.path.join(executable_dir, 'pythonw.exe'))
+flask_path = os.path.normpath(os.path.join(executable_dir, 'flask.exe'))
 
 def walk_paths(top):
     """

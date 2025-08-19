@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+
+{% from "render.html" import render_pagination %}
+
+
+{% block content %}
+    {% if page_title %}<h3>{{ page_title }}</h3>{% endif %}
+    {% if stmt is not none %}<pre class="data" style="white-space: pre-wrap; width: 80ch;">{{ stmt }}</pre>{% endif %}
+    {% if query_form %}<form id="{{ query_form_id }}" method="get">
+        <input type="submit" value="Filter/Sort">
+        <a href="{{ url_for(request.endpoint) }}">Clear</a>
+    </form>{% endif %}
+    {% if query_form_id %}<script>
+        document.getElementById("{{ query_form_id }}").addEventListener("submit", function(e) {
+            /* remove empty fields from submission */
+            const elements = this.elements;
+            for (let i = elements.length - 1; i >= 0; i--) {
+                const elem = elements[i];
+                if (elem.name && !elem.value.trim()) {
+                    elem.removeAttribute("name");
+                }
+            }
+        });
+    </script>{% endif %}{# query_form_id #}
+
+    {% if not grouped %}
+    <h3>No results</h3>
+    {% else %}
+        <h2>{{ model.__tablename__ }} grouped by {{ attrnames }}</h2>
+        <p>{{ grouped|length }} groups</p>
+        {% for key, group in grouped %}
+        <section>
+            <h3>{% for index in key|as_list %}<span class="key-index">{{ index }}</span>{% endfor %}</h3>
+            <ul>{% for item in group %}
+                <li>{{ item }}</li>
+            {% endfor %}</ul>
+        </section>
+        {% endfor %}
+    {% endif %}
+
+    {% if pagination.pages > 1 %}
+    {{ render_pagination(pagination, request.endpoint) }}
+    {% endif %}{# pagination.pages > 1 #}
+
+{% endblock %}

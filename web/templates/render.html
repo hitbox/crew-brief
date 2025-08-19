@@ -1,0 +1,103 @@
+{% macro render_pagination(pagination, endpoint) %}
+    <nav class="pagination">
+        <ul class="pagination justify-content-center">
+            {% if pagination.has_prev %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for_page(endpoint, pagination.prev_num) }}">Previous</a>
+                </li>
+            {% else %}
+                <li class="disabled page-item"><span class="page-link">Previous</span></li>
+            {% endif %}
+
+            {% for page in pagination.iter_pages() %}
+                {% if page %}
+                    {% set page_number = '{:,}'.format(page) %}
+                    {% if page == pagination.page %}
+                    <li class="page-item active"><span class="page-link">{{ page_number }}</span></li>
+                    {% else %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for_page(endpoint, page) }}">{{ page_number }}</a>
+                    </li>
+                    {% endif %}
+                {% else %}
+                    <span class="ellipsis page-link">...</span>
+                {% endif %}
+            {% endfor %}
+
+            {% if pagination.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="{{ url_for_page(endpoint, pagination.next_num) }}">Next</a>
+            </li>
+            {% else %}
+            <li class="page-item disabled"><span class="page-link">Next</span></li>
+            {% endif %}
+        </ul>
+    </nav>
+{% endmacro %}
+
+
+{% macro render_attributes() %}
+    {% for key, val in kwargs|items %}{{ key }}="{{ val }}"{% endfor %}
+{% endmacro %}
+
+
+{% macro render_table(table, objects) %}
+    <table class="table table-striped table-bordered">
+        <thead>
+            <tr>{% for col in table.columns %}<th scope="col">{{ col.render_th() }}</th>{% endfor %}</tr>
+        </thead>
+        <tbody>
+            {% for obj in objects %}<tr scope="row">
+                    {% for col in table.columns %}<td{% if col.attrs is not none %}{{ render_attributes(**col.attrs) }}{% endif %}>
+                    {{ col.render_td(obj) }}
+                </td>{% endfor %}{# col in table.columns #}
+            </tr>{% endfor %}{# obj in objects #}
+        </tbody>
+    </table>
+{% endmacro %}
+
+
+{% macro render_total(num) %}{{ '{:,}'.format(num) }} Total{% endmacro %}
+
+
+{% macro render_table_and_pagination(pagination, table) %}
+    <h3>{{ render_total(pagination.total) }}</h3>
+    {% if pagination.pages > 0 %}
+        {{ render_table(table, pagination) }}
+    {% else %}
+    <h3>No results</h3>
+    {% endif %}
+    {% if pagination.pages > 1 %}
+    {{ render_pagination(pagination, request.endpoint) }}
+    {% endif %}
+{% endmacro %}
+
+
+{% macro render_month_zip_count_calendar(month_data, for_date) %}
+    <section class="month">
+        <h3 class="month-name{% if month_data.month.is_same %} is-same{% endif %}">{{ month_data.month.name }}</h3>
+        <div class="month-days">
+            {# weekday header #}
+            {% for weekday in weekdays %}<div class="weekday">{{ weekday.abbr }}</div>{% endfor %}
+            {# all days of month #}
+            {% for dayobj in month_data.month.days %}
+                {% set count = for_date.get(dayobj.date) %}
+                {% set is_link = count is not none %}
+                {% set tag = 'a' if is_link else 'div' %}
+                {% set url = url_for('groupby.is_complete_zip_for_date', date=dayobj.date) if is_link else None %}
+                <{{ tag }}
+                    {% if is_link %}href="{{ url }}"{% endif %}
+                    class="date number
+                           {% if dayobj.is_same %} is-same{% endif %}
+                           {% if dayobj.is_today %} is-today{% endif %}
+                           {% if not is_link %} no-data{% endif %}">
+                    <div{% if dayobj.is_same %} class="day"{% endif %}>{{ dayobj.day if dayobj.is_same }}</div>
+                    <div class="count">
+                        {% if is_link %}
+                            {{ count|short_number }}
+                        {% endif %}
+                    </div>
+                </{{ tag }}>
+            {% endfor %}
+    </section>
+{% endmacro %}

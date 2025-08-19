@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+    <h2>Unique groups of missing members and the related ZIP files.</h2>
+    <p>Sorted by most files.</p>
+    {# cb "crew-brief" prefix #}
+    <div class="card-container">
+        {% for data in rows %}<div class="card">
+            <div class="card-body">
+                {% set url = url_for('.files_by_missing_members_group', required_member_ids=data.required_member_ids) %}
+                <h3>
+                    <a href="{{ url }}">{{ '{:,}'.format(data.n_files) }}</a>
+                </h3>
+                <ul class="list-unstyled small mb-0">{% for required_member in data.required_members %}
+                    <li class="data">{{ required_member.filename }}</li>{% endfor %}
+                </ul>
+            </div>
+        </div>{% endfor %}{# data in rows #}
+{% endblock %}

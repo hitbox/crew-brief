@@ -55,9 +55,23 @@ def instance_from_config(cp, secname, prefix, globals=None, locals=None):
     return class_(*args, **kwargs)
 
 def pyfile_config(filename):
+    """
+    Load filename as Python module.
+    """
     config = types.ModuleType('config')
     with open(filename, 'r') as config_file:
         code = config_file.read()
-    exec(code, config.__dict__)
+    try:
+        exec(code, config.__dict__)
+    except Exception as e:
+        raise Exception(f'Error in config file {filename}.')
     return config
 
+def resolve_config(filename=None):
+    if filename is None:
+        filename = os.getenv(constants.ENVIRON_CONFIG_KEY)
+
+    if filename is None:
+        raise ValueError(f'Path to config not defined')
+
+    return pyfile_config(filename)

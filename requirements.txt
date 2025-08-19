@@ -1,7 +1,14 @@
+alembic
 flask
 flask-sqlalchemy
+flask_wtf
 jinja2
 marshmallow
 openpyxl
+pdfplumber
+psycopg[binary]
 pywin32; sys_platform == 'win32'
 sqlalchemy
+waitress
+wtforms
+wtforms-sqlalchemy

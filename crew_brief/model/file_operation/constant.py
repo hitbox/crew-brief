@@ -1,0 +1,1 @@
+DEFAULT_STATUS_NAME = 'created'

@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+    <h2>Unparsed</h2>
+    <p>Total {{ '{:,}'.format(unparsed_by_file_type | sum('count')) }}</p>
+    <p>Files without a parsed out leg identifier, grouped by their MIME and detected types.</p>
+    <div class="card-container">
+        {% for unparsed in unparsed_by_file_type %}<div class="card">
+            <div>
+                <h3>{{ '{:,}'.format(unparsed.count) }}</h3>
+                <div class="data">{{ unparsed.mime }}</div>
+                <div>{% if unparsed.is_zipfile %}ZIP{% else %}Not ZIP{% endif %}</div>
+                {% set url = url_for('.unparsed_list', is_zipfile=unparsed.is_zipfile, mime=unparsed.mime) %}
+                <div><a href="{{ url }}">List files...</a></div>
+            </div>
+        </div>{% endfor %}
+    </div>
+{% endblock %}

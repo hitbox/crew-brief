@@ -5,6 +5,7 @@ from sqlalchemy import String
 from sqlalchemy import Text
 from sqlalchemy.ext.orderinglist import ordering_list
 from sqlalchemy.orm import relationship
+from sqlalchemy.orm import validates
 
 from crew_brief.model.base import Base
 from crew_brief.model.mixin import ByMixin

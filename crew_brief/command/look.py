@@ -1,3 +1,4 @@
+import pickle
 import re
 
 import openpyxl
@@ -5,7 +6,7 @@ import openpyxl
 from pprint import pprint
 
 from crew_brief import configlib
-from crew_brief import databaselib
+from crew_brief import constants
 from crew_brief import nodes
 from crew_brief import schema
 
@@ -44,6 +45,22 @@ def add_parser(subparsers):
     values_parser.add_argument('config')
     values_parser.set_defaults(func=values)
 
+def database_path(config):
+    """
+    Return the path to the pickle database from config.
+    """
+    database_fn = config[constants.NAME]['database']
+    return database_fn
+
+def database_from_config(config):
+    """
+    Load and return the object from the pickle database.
+    """
+    database_fn = database_path(config)
+    with open(database_fn, 'rb') as database_file:
+        database = pickle.load(database_file)
+    return database
+
 def make_type(obj):
     if isinstance(obj, dict):
         return frozenset((key, make_type(value)) for key, value in obj.items())
@@ -61,7 +78,7 @@ def database(args):
     Print values from database.
     """
     config = configlib.from_args(args)
-    database = databaselib.database_from_config(config)
+    database = database_from_config(config)
     if args.unique:
         values = set()
         add_data = values.add

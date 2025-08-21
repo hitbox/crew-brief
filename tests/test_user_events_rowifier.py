@@ -4,8 +4,7 @@ import unittest
 from pprint import pprint
 
 from crew_brief.constants import LEG_IDENTIFIER_LABELS
-from crew_brief.rowifier import UserEventsRowifier
-from crew_brief.schema import make_leg_identifier
+from crew_brief.model.rowifier import UserEventsRowifier
 
 TEST_DATA = dict(
     no_user_events = dict(

@@ -77,26 +77,5 @@ class TestJoinTables(unittest.TestCase):
         )
 
 
-class TestDictSplit(unittest.TestCase):
-
-    def setUp(self):
-        self.splitter = sorting.DictSplit(['a'], ['b'], ['c'])
-
-    def test_dict_split(self):
-        result = self.splitter({'a': 1, 'b': 2, 'c': 3, 'd': 4})
-        expect = {
-            ('a',): {'a': 1},
-            ('b',): {'b': 2},
-            ('c',): {'c': 3},
-            ('d',): {'d': 4},
-        }
-        self.assertEqual(result, expect)
-
-    def test_dict_split_empty(self):
-        result = self.splitter({})
-        expect = {}
-        self.assertEqual(result, expect)
-
-
 if __name__ == '__main__':
     unittest.main()

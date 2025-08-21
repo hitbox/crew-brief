@@ -8,6 +8,10 @@ ENVIRON_CONFIG_KEY = f'{NAME.upper()}_CONFIG'
 
 ZDATETIME_FORMAT = '%Y-%m-%dT%H:%M:%S.%fZ'
 
+SHORT_DATE_FORMAT = '%d%b%y'
+
+NONE_STRING = '(None)'
+
 # legIdentifier parts as they appear in the original string.
 LEG_IDENTIFIER_PARTS = [
     'company_code',
@@ -27,9 +31,6 @@ LEG_IDENTIFIER_LABELS = {
     'company_code': 'Company Code',
     'letter_code': 'Letter Code',
 }
-
-# Format of date in legIdentifier string.
-LEG_IDENTIFIER_DATE_FORMAT = '%d%b%Y'
 
 # Separator for nested keys from unfolding.
 NESTED_KEY_SEP = '\n'

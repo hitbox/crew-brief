@@ -31,7 +31,7 @@ def seed_for_enum(session, enum_class, delete_existing=False, instance_kw=None):
         instance = member.db_instance(**instance_kw)
         session.add(instance)
 
-def check_exists(session, model, delete_exists=False):
+def raise_for_exists(session, model, delete_exists=False):
     """
     Raise for existing data or delete all rows if option given.
     """

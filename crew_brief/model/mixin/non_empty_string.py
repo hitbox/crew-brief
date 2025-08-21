@@ -7,7 +7,8 @@ from sqlalchemy.orm import validates
 
 class NonEmptyStringMixin:
     """
-    Prevent empty strings mixin.
+    Prevent empty strings mixin. Add ORM and database side string validator to
+    all String columns.
     """
 
     @staticmethod
@@ -22,16 +23,16 @@ class NonEmptyStringMixin:
     @declared_attr
     def __table_args__(cls):
         constraints = []
-        for name, column in cls.__dict__.items():
+        for attrname, column in cls.__dict__.items():
             if cls._is_string(column):
-                constraints.append(CheckConstraint(f"{name} <> ''"))
+                constraints.append(CheckConstraint(f"{attrname} <> ''"))
         return tuple(constraints)
 
     @classmethod
     def __declare_last__(cls):
-        for name, column in cls.__dict__.items():
+        for attrname, column in cls.__dict__.items():
             if cls._is_string(column):
-                cls._add_non_empty_validator(name)
+                cls._add_non_empty_validator(attrname)
 
     @classmethod
     def _add_non_empty_validator(cls, attr):

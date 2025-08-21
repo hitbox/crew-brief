@@ -1,4 +1,3 @@
-from markupsafe import Markup
 from sqlalchemy import Column
 from sqlalchemy import Integer
 from sqlalchemy.orm import relationship
@@ -18,6 +17,3 @@ class Airline(Base, CodePairMixin, TimestampMixin, NonEmptyStringMixin):
         'LegIdentifier',
         back_populates = 'airline',
     )
-
-    def __html__(self):
-        return Markup(self.iata_code)

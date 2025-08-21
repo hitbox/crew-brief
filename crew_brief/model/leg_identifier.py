@@ -1,6 +1,3 @@
-from operator import attrgetter
-from operator import itemgetter
-
 from markupsafe import Markup
 from sqlalchemy import Column
 from sqlalchemy import DateTime
@@ -13,31 +10,15 @@ from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.orm import declared_attr
 from sqlalchemy.orm import relationship
 
+from crew_brief.constants import NONE_STRING
+from crew_brief.constants import SHORT_DATE_FORMAT
+
 from .base import Base
+from .flight_number import FlightNumber
 from .mixin import CodePairMixin
 from .mixin import NonEmptyStringMixin
 from .mixin import TimestampMixin
-
-keys_for_unique_leg_identifier = (
-    'airline_id',
-    'flight_number_id',
-    'origin_date_id',
-    'departure_airport_id',
-    'destination_airport_id',
-    'ofp_version',
-    'datetime',
-)
-
-get_leg_identifier_unique_key_attrs = attrgetter(*keys_for_unique_leg_identifier)
-get_leg_identifier_unique_key_items = itemgetter(*keys_for_unique_leg_identifier)
-
-def origin_date_creator(origin_date):
-    from .origin_date import OriginDate
-    return OriginDate(origin_date=origin_date)
-
-def flight_number_creator(flight_number):
-    from .flight_number import FlightNumber
-    return FlightNumber(flight_number=flight_number)
+from .origin_date import OriginDate
 
 class LegIdentifier(Base, TimestampMixin, NonEmptyStringMixin):
     """
@@ -59,21 +40,23 @@ class LegIdentifier(Base, TimestampMixin, NonEmptyStringMixin):
     flight_number_id = Column(Integer, ForeignKey('flight_number.id'))
     flight_number_object = relationship(
         'FlightNumber',
+        back_populates = 'leg_identifiers',
     )
     flight_number = association_proxy(
         'flight_number_object',
         'flight_number',
-        creator = flight_number_creator,
+        creator = FlightNumber.creator,
     )
 
     origin_date_id = Column(Integer, ForeignKey('origin_date.id'))
     origin_date_object = relationship(
         'OriginDate',
+        back_populates = 'leg_identifiers',
     )
     origin_date = association_proxy(
         'origin_date_object',
         'origin_date',
-        creator = origin_date_creator,
+        creator = OriginDate.creator,
     )
 
     departure_airport_id = Column(Integer, ForeignKey('airport.id'))
@@ -92,20 +75,16 @@ class LegIdentifier(Base, TimestampMixin, NonEmptyStringMixin):
     )
     destination_airport_iata = association_proxy('destination_airport', 'iata_code')
 
-    ofp_version = Column(
-        String,
-        nullable = True,
-    )
-
     ofp_version_id = Column(
         Integer,
         ForeignKey('ofp_version.id'),
         nullable = True,
     )
-
     ofp_version_object = relationship(
         'OFPVersion',
+        back_populates = 'leg_identifiers',
     )
+    ofp_version = association_proxy('ofp_version_object', 'dotted_string')
 
     datetime = Column(
         DateTime,
@@ -115,8 +94,8 @@ class LegIdentifier(Base, TimestampMixin, NonEmptyStringMixin):
 
     leg_file = relationship(
         'LegFile',
-        doc = 'The file that was scraped to produce this record.',
         back_populates = 'leg_identifier',
+        doc = 'The file that was scraped to produce this record.',
     )
 
     scraped_by_id = Column(Integer, ForeignKey('scraper.id'))
@@ -126,10 +105,10 @@ class LegIdentifier(Base, TimestampMixin, NonEmptyStringMixin):
         doc = 'The object that produced this record of leg identifier info.',
     )
 
-    # matching_files relationship() in __init__
-
-    # TODO
-    # - expression for complete leg_identifier, especially for origin_date_object
+    @classmethod
+    def from_data(cls, data):
+        # Create LegIdentifier from deserialized data.
+        raise NotImplementedError
 
     @classmethod
     def get_or_create_from_parse(
@@ -180,13 +159,13 @@ class LegIdentifier(Base, TimestampMixin, NonEmptyStringMixin):
             self.destination_airport.iata_code,
         ]
         if self.origin_date:
-            parts.append(self.origin_date.strftime('%d%b%y'))
+            parts.append(self.origin_date.strftime(SHORT_DATE_FORMAT))
         else:
-            parts.append('(None)')
+            parts.append(NONE_STRING)
         if self.ofp_version_object is not None:
             parts.append(self.ofp_version_object)
         else:
-            parts.append('(None)')
+            parts.append(NONE_STRING)
         return parts
 
     @property

@@ -1,26 +1,64 @@
-import enum
+from enum import IntEnum
+
 import ntpath
 import os
 import posixpath
 
-class PathFlavor(enum.Enum):
+from sqlalchemy import Boolean
+from sqlalchemy import Column
+from sqlalchemy import Integer
+from sqlalchemy import String
+from sqlalchemy.orm import relationship
+
+from .base import Base
+from .mixin import NonEmptyStringMixin
+
+class PathFlavorEnum(IntEnum):
     """
     Enumerate common path flavors with associated module for manipulating them.
     """
-    auto = 'auto'
-    posix = 'posix'
-    nt = 'nt'
+    auto = 1
+    posix = 2
+    nt = 3
 
-    def __init__(self, name):
-        if name == 'auto':
+    @property
+    def module(self):
+        if self is PathFlavor.auto:
             self.module = os.path
-        elif name == 'posix':
+        elif self is PathFlavor.posix:
             self.module = posixpath
-        elif name == 'nt':
+        elif self is PathFlavor.nt:
             self.module = ntpath
 
-    def __getattr__(self, name):
-        if name.startswith('_'):
-            return super().__getattr__(name)
-        else:
-            return getattr(self.module, name)
+    def instance(self, session):
+        return session.get(PathFlavor, ident=self.value)
+
+
+class PathFlavor(NonEmptyStringMixin, Base):
+    """
+    Flavor of path separator.
+    """
+
+    __tablename__ = 'path_flavor'
+
+    __enum__ = PathFlavorEnum
+
+    id = Column(Integer, primary_key=True)
+
+    name = Column(String, nullable=False)
+
+    os_walks = relationship(
+        'OSWalk',
+        back_populates = 'path_flavor_object',
+    )
+
+    @property
+    def member(self):
+        """
+        Return Python side backing enum member.
+        """
+        return self.__enum__(self.id)
+
+    @property
+    def module(self):
+        return self.member.module

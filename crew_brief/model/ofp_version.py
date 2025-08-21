@@ -1,34 +1,78 @@
+import sqlalchemy as sa
+
 from markupsafe import Markup
 from sqlalchemy import CheckConstraint
 from sqlalchemy import Column
 from sqlalchemy import Integer
+from sqlalchemy import String
 from sqlalchemy import UniqueConstraint
 from sqlalchemy import select
+from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.orm import relationship
 from sqlalchemy.orm import validates
 
 from .base import Base
 from .mixin import NonEmptyStringMixin
 from .mixin import TimestampMixin
 
-class OFPVersion(Base, TimestampMixin, NonEmptyStringMixin):
+def check_constraint_null_or_nonnegative(column_name):
+    return CheckConstraint(
+        f'{column_name} IS NULL OR {column_name} >= 0',
+        name = 'check_ofp_{column_name}_null_or_nonnegative',
+    )
+
+class OFPVersion(NonEmptyStringMixin, TimestampMixin, Base):
     """
     Operational Flight Plan Version
     """
 
     __tablename__ = 'ofp_version'
 
-    id = Column(Integer, primary_key=True)
-
-    major = Column(Integer, nullable=True)
-    minor = Column(Integer, nullable=True)
-    patch = Column(Integer, nullable=True)
-
     __table_args__ = (
         UniqueConstraint('major', 'minor', 'patch'),
-        CheckConstraint('major IS NULL OR major >= 0', name='check_ofp_major_null_or_nonnegative'),
-        CheckConstraint('minor IS NULL OR minor >= 0', name='check_ofp_minor_null_or_nonnegative'),
-        CheckConstraint('patch IS NULL OR patch >= 0', name='check_ofp_patch_null_or_nonnegative'),
     )
+
+    id = Column(Integer, primary_key=True)
+
+    major = Column(
+        Integer,
+        check_constraint_null_or_nonnegative('major'),
+        nullable = True,
+    )
+
+    minor = Column(
+        Integer,
+        check_constraint_null_or_nonnegative('minor'),
+        nullable = True,
+    )
+
+    patch = Column(
+        Integer,
+        check_constraint_null_or_nonnegative('patch'),
+        nullable = True,
+    )
+
+    leg_identifiers = relationship(
+        'LegIdentifier',
+        back_populates = 'ofp_version_object',
+    )
+
+    @hybrid_property
+    def dotted_string(self):
+        """
+        OFPVersion components as a dot separated string.
+        """
+        return f'{self.major}.{self.minor}.{self.patch}'
+
+    @dotted_string.expression
+    def dotted_string(cls):
+        return sa.func.concat(
+            sa.func.cast(cls.major, String),
+            '.',
+            sa.func.cast(cls.minor, String),
+            '.',
+            sa.func.cast(cls.patch, String),
+        )
 
     @validates('major', 'minor', 'patch')
     def validate_nonnegative(self, key, value):

@@ -4,6 +4,7 @@ from sqlalchemy import Column
 from sqlalchemy import Date
 from sqlalchemy import Integer
 from sqlalchemy import String
+from sqlalchemy.orm import relationship
 
 from .base import Base
 from .mixin import NonEmptyStringMixin
@@ -20,6 +21,15 @@ class OriginDate(Base, TimestampMixin, InstanceMixin):
     id = Column(Integer, primary_key=True)
 
     origin_date = Column(Date, nullable=False)
+
+    leg_identifiers = relationship(
+        'LegIdentifier',
+        back_populates = 'origin_date_object',
+    )
+
+    @classmethod
+    def creator(cls, origin_date):
+        return cls(origin_date=origin_date)
 
     @classmethod
     def from_key_values(cls, origin_date):

@@ -1,9 +1,13 @@
+from itertools import pairwise
+
 from sqlalchemy import Column
 from sqlalchemy import ForeignKey
 from sqlalchemy import Integer
 from sqlalchemy import String
 from sqlalchemy import Text
+from sqlalchemy import event
 from sqlalchemy.ext.orderinglist import ordering_list
+from sqlalchemy.orm import Session
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm import validates
 
@@ -48,44 +52,24 @@ class Scraper(
     )
 
     @validates('steps')
-    def validate_steps(self, key, step):
+    def validate_steps(self, key, steps):
         """
-        Enforce:
-        1. At least one Regex step must exist.
-        2. At least one Schema step must exist.
-        3. Function steps (if any) must come after Regex but before Schema.
+        Validate scraper steps are ordered correctly.
         """
-        from .scraper_step import ScraperStepTypeEnum
+        # Raise for missing required types. Comparing model to enum member.
+        for required_member in ScraperStepTypeEnum.__required__:
+            if not any(step.type == required_member for step in steps):
+                raise ValueError(
+                    f'Required StepType {required_member} not found')
 
-        # Gather all current + new steps (after flush)
-        all_steps = [s for s in self.steps if s is not None]
+        # Steps may not be sorted yet.
+        sorted_steps = sorted(steps, key=lambda step: step.position)
 
-        # Check type counts
-        regex_steps = [s for s in all_steps if s.type_id == ScraperStepTypeEnum.REGEX]
-        schema_steps = [s for s in all_steps if s.type_id == ScraperStepTypeEnum.SCHEMA]
-        function_steps = [s for s in all_steps if s.type_id == ScraperStepTypeEnum.FUNCTION]
+        for step1, step2 in pairwise(sorted_steps):
+            if step2.step_type.member < step1.step_type.member:
+                raise ValueError(f'{step1} must come before {step2}')
 
-        # Must have exactly one regex and one schema
-        if len(regex_steps) > 1:
-            raise ValueError('Scraper may only have one Regex step')
-
-        if len(schema_steps) > 1:
-            raise ValueError('Scraper may only have one Schema step')
-
-        # If both regex + schema exist, enforce ordering
-        if regex_steps and schema_steps:
-            regex_order = regex_steps[0].position
-            schema_order = schema_steps[0].position
-            if regex_order >= schema_order:
-                raise ValueError('Regex step must come before Schema step')
-
-            for funcstep in function_steps:
-                if not (regex_order < funcstep.position < schema_order):
-                    raise ValueError(
-                        f"Function step {funcstep.id or '?'} must be ordered after Regex and before Schema"
-                    )
-
-        return step
+        return steps
 
     regexes = relationship(
         'Regex',
@@ -126,4 +110,3 @@ class Scraper(
 
     def __html__(self):
         return self.name
-

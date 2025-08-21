@@ -34,4 +34,5 @@ class FileOperationTypeEnum(IntEnum, metaclass=DatabaseEnumMeta):
         )
 
 
-FileOperationTypeEnum.ZIP_APPEND._set_attrs('Append `target_file` to the ZIP file `leg_file`.')
+FileOperationTypeEnum.ZIP_APPEND._set_attrs(
+    'Append `target_file` to the ZIP file `leg_file`.')

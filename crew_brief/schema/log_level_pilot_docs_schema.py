@@ -26,3 +26,5 @@ class LogLevelPilotDocsSchema(Schema):
     is_preflight = IsPreflight()
 
     filename_suffix = String()
+
+    short_description = String(allow_none=True)

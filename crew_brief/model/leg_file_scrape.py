@@ -1,5 +1,3 @@
-from enum import IntEnum
-
 from sqlalchemy import Column
 from sqlalchemy import ForeignKey
 from sqlalchemy import Integer
@@ -14,59 +12,19 @@ from .mixin import ByMixin
 from .mixin import NonEmptyStringMixin
 from .mixin import TimestampMixin
 
-class LegFileScrapeStatusEnum(IntEnum):
-    """
-    Enum for the status of the process of parsing LegFile object paths.
-    """
-
-    # 1. Filename regex matching.
-    NO_MATCH = 1
-    MATCH = 2
-
-    # 2. Optional extra parsing to add string data to match data.
-    NO_POSTMATCH = 3
-    POSTMATCH = 4
-    POSTMATCH_EXCEPTION = 5
-
-    # 3. Schema
-    DESERIALIZE = 6
-    DESERIALIZE_EXCEPTION = 7
-
-    # 4. Existing or new LegIdentifier object construction.
-    LEG_IDENTIFIER = 8
-    LEG_IDENTIFIER_EXCEPTION = 9
-
-
-class LegFileScrapeStatus(Base):
-
-    __tablename__ = 'leg_file_scrape_status'
-
-    id = Column(Integer, primary_key=True)
-
-
-class LegFileScrape(
+class LegFileScraperHistory(
     Base,
     ByMixin,
     NonEmptyStringMixin,
     TimestampMixin,
 ):
     """
+    Steps of scraping done by a Scraper against a LegFile.
     """
 
-    __tablename__ = 'leg_file_scrape'
+    __tablename__ = 'leg_file_scraper_history'
 
     id = Column(Integer, primary_key=True)
-
-    name = Column(
-        String,
-        nullable = False,
-        unique = True,
-    )
-
-    description = Column(
-        Text,
-        nullable = True,
-    )
 
     leg_file_id = Column(
         Integer,
@@ -78,32 +36,23 @@ class LegFileScrape(
         'LegFile',
     )
 
-    status_id = Column(
+    scraper_step_id = Column(
         Integer,
-        ForeignKey('leg_file_scrape_status.id'),
+        ForeignKey('scraper_step.id'),
         nullable = False,
     )
 
-    status = relationship(
-        'LegFileScrapeStatus',
+    scraper_step = relationship(
+        'ScraperStep',
+        doc = 'ScraperStep object for the scraping step that was done to this LegFile.',
     )
 
-    scraper_id = Column(
+    exception_id = Column(
         Integer,
-        ForeignKey('scraper.id'),
-        nullable = False,
-    )
-
-    scraper = relationship(
-        'Scraper',
-    )
-
-    matched_regex_id = Column(
-        Integer,
-        ForeignKey('regex.id'),
+        ForeignKey('exception_instance.id'),
         nullable = True,
     )
 
-    matched_regex = relationship(
-        'Regex',
+    exception = relationship(
+        'ExceptionInstance',
     )

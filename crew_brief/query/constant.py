@@ -9,7 +9,7 @@ fields_for_unique_leg_identifier = (
     LegIdentifier.origin_date_id,
     LegIdentifier.departure_airport_id,
     LegIdentifier.destination_airport_id,
-    LegIdentifier.ofp_version,
+    LegIdentifier.ofp_version_id,
     LegIdentifier.datetime,
 )
 

@@ -3,7 +3,12 @@ import logging.config
 import os
 import pickle
 import re
+import sys
 import types
+
+from importlib.util import module_from_spec
+from importlib.util import spec_from_file_location
+from pathlib import Path
 
 from . import constants
 
@@ -54,18 +59,16 @@ def instance_from_config(cp, secname, prefix, globals=None, locals=None):
     kwargs = eval(section.get('kwargs', 'dict()'), globals, locals)
     return class_(*args, **kwargs)
 
-def pyfile_config(filename):
+def pyfile_config(filename, module_name='config'):
     """
     Load filename as Python module.
     """
-    config = types.ModuleType('config')
-    with open(filename, 'r') as config_file:
-        code = config_file.read()
-    try:
-        exec(code, config.__dict__)
-    except Exception as e:
-        raise Exception(f'Error in config file {filename}.')
-    return config
+    filename = Path(filename).resolve()
+    spec = spec_from_file_location(module_name, filename)
+    module = module_from_spec(spec)
+    sys.modules[module_name] = module
+    spec.loader.exec_module(module)
+    return module
 
 def resolve_config(filename=None):
     if filename is None:

@@ -15,10 +15,11 @@ from . import workbook
 from . import writer
 from .airline import Airline
 from .airport import Airport
-from .attribute_sort import AttributeSort
 from .base import Base
 from .change_type_enum import ChangeTypeEnum
 from .code_mapper import CodeMapper
+from .exception import ExceptionInstance
+from .exception import ExceptionType
 from .file_operation import FileOperation
 from .file_operation import FileOperationAssociation
 from .file_operation import FileOperationStatus
@@ -32,9 +33,7 @@ from .history import ChangeStatusEnum
 from .history import HistoryMixin
 from .ignore_file import IgnoreFile
 from .leg_file import LegFile
-from .leg_file_scrape import LegFileScrape
-from .leg_file_scrape import LegFileScrapeStatus
-from .leg_file_scrape import LegFileScrapeStatusEnum
+from .leg_file_scrape import LegFileScraperHistory
 from .leg_identifier import LegIdentifier
 from .mime_type import MimeType
 from .missing_member import MissingMember
@@ -42,11 +41,20 @@ from .ofp_version import OFPVersion
 from .origin_date import OriginDate
 from .os_walk import OSWalk
 from .path_flavor import PathFlavor
+from .path_flavor import PathFlavorEnum
 from .regex import Regex
 from .required_member import RequiredMember
 from .schema import Schema
+from .scraper import FunctionStep
+from .scraper import ObjectCreator
+from .scraper import ObjectCreatorEnum
+from .scraper import ObjectStep
+from .scraper import RegexStep
+from .scraper import SchemaStep
 from .scraper import Scraper
 from .scraper import ScraperStep
+from .scraper import ScraperStepType
+from .scraper import ScraperStepTypeEnum
 from .user import BotUserEnum
 from .user import User
 from .user import UserType
@@ -94,10 +102,11 @@ LegIdentifier.matching_files = relationship(
             LegIdentifier.departure_airport_id == remote(_LegIdentifier.departure_airport_id),
             LegIdentifier.destination_airport_id == remote(_LegIdentifier.destination_airport_id),
             sa.or_(
-                LegIdentifier.ofp_version == remote(_LegIdentifier.ofp_version),
+                # OFP versions are exactly the same or both null.
+                LegIdentifier.ofp_version_id == remote(_LegIdentifier.ofp_version_id),
                 sa.and_(
-                    LegIdentifier.ofp_version == None,
-                    remote(_LegIdentifier.ofp_version) == None,
+                    LegIdentifier.ofp_version_id == None,
+                    remote(_LegIdentifier.ofp_version_id) == None,
                 ),
             ),
 

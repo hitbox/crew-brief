@@ -1,12 +1,11 @@
 import os
 
-import sqlalchemy
-
-from markupsafe import Markup
 from sqlalchemy import Boolean
 from sqlalchemy import Column
+from sqlalchemy import ForeignKey
 from sqlalchemy import Integer
 from sqlalchemy import String
+from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.orm import relationship
 
 from .base import Base
@@ -14,14 +13,13 @@ from .mixin import ByMixin
 from .mixin import NonEmptyStringMixin
 from .mixin import TimestampMixin
 from .mixin import UniqueNameMixin
-from .path_flavor import PathFlavor
 
 class OSWalk(
-    Base,
     ByMixin,
     NonEmptyStringMixin,
     TimestampMixin,
     UniqueNameMixin,
+    Base,
 ):
     """
     os.walk arguments.
@@ -55,16 +53,23 @@ class OSWalk(
         doc = 'Follow symbolic links.',
     )
 
-    path_flavor = Column(
-        sqlalchemy.Enum(PathFlavor, name='path_flavor_enum'),
+    path_flavor_id = Column(
+        Integer,
+        ForeignKey('path_flavor.id'),
         nullable = False,
-        server_default = PathFlavor.auto.value,
-        doc = 'Flavor of path separators.',
     )
+
+    path_flavor_object = relationship(
+        'PathFlavor',
+        back_populates = 'os_walks',
+    )
+
+    path_flavor = association_proxy('path_flavor_object', 'module')
 
     leg_files = relationship(
         'LegFile',
         back_populates = 'os_walk',
+        doc = 'LegFile objects that were scanned by this OSWalk object.',
     )
 
     @property
@@ -101,6 +106,3 @@ class OSWalk(
         Short description string.
         """
         return f'{self.name} {self.normalized_top}'
-
-    def __html__(self):
-        return Markup(self.name)

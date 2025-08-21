@@ -9,7 +9,7 @@ from .base import Base
 from .mixin import NonEmptyStringMixin
 from .mixin import TimestampMixin
 
-class RequiredMember(Base, TimestampMixin, NonEmptyStringMixin):
+class RequiredMember(TimestampMixin, NonEmptyStringMixin, Base):
     """
     Zip file member requirement to qualify for completeness of zip.
     """

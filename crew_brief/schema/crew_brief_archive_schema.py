@@ -3,6 +3,8 @@ from marshmallow.fields import Date
 from marshmallow.fields import DateTime
 from marshmallow.fields import String
 
+from crew_brief.constants import SHORT_DATE_FORMAT
+
 from .field import IsPreflight
 from .field import ofp_version_field
 
@@ -14,7 +16,7 @@ class CrewBriefArchiveSchema(Schema):
     folder_date = Date()
     airline_iata = String()
     flight_number = String()
-    origin_date = Date(format='%d%b%y')
+    origin_date = Date(format=SHORT_DATE_FORMAT)
     departure_iata = String()
     destination_iata = String()
     ofp_version = ofp_version_field('_')

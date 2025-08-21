@@ -53,7 +53,7 @@ class UserEventsFileSchema(mm.Schema):
         sep = '.',
         part_types = dict(
             date = convert.DateConverter(
-                constants.LEG_IDENTIFIER_DATE_FORMAT
+                constants.SHORT_DATE_FORMAT
             ),
         ),
         required = True,

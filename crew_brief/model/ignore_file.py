@@ -6,7 +6,7 @@ from .base import Base
 from .mixin import NonEmptyStringMixin
 from .mixin import TimestampMixin
 
-class IgnoreFile(Base, TimestampMixin, NonEmptyStringMixin):
+class IgnoreFile(TimestampMixin, NonEmptyStringMixin, Base):
     """
     File path excluded from saving/indexing.
     """

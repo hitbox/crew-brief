@@ -4,15 +4,19 @@ from sqlalchemy import String
 from sqlalchemy import Text
 from sqlalchemy.orm import relationship
 
-from htmlkit import unordered_list
-
 from .base import Base
 from .mixin import ByMixin
 from .mixin import NonEmptyStringMixin
 from .mixin import TimestampMixin
 from .mixin import UniqueNameMixin
 
-class ZipSpec(Base, TimestampMixin, NonEmptyStringMixin, UniqueNameMixin, ByMixin):
+class ZipSpec(
+    ByMixin,
+    NonEmptyStringMixin,
+    TimestampMixin,
+    UniqueNameMixin,
+    Base,
+):
     """
     Group of named members required for a complete zip file.
     """

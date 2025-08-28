@@ -16,6 +16,7 @@ from . import writer
 from .airline import Airline
 from .airport import Airport
 from .base import Base
+from .change_type import ChangeType
 from .change_type_enum import ChangeTypeEnum
 from .code_mapper import CodeMapper
 from .exception import ExceptionInstance
@@ -116,3 +117,17 @@ LegIdentifier.matching_files = relationship(
     order_by = LegFile.is_zipfile,
     viewonly = True,
 )
+
+# Table rows backed enums.
+enums = [
+    ChangeStatusEnum,
+    ChangeTypeEnum,
+    FileOperationStatusEnum,
+    FileOperationTypeEnum,
+    ObjectCreatorEnum,
+    PathFlavorEnum,
+    ScraperStepTypeEnum,
+    UserTypeEnum,
+]
+
+model_enum_pairs = [(eval(enum.__model__), enum) for enum in enums]

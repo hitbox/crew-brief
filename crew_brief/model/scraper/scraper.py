@@ -5,7 +5,7 @@ from sqlalchemy import ForeignKey
 from sqlalchemy import Integer
 from sqlalchemy import String
 from sqlalchemy import Text
-from sqlalchemy import event
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.ext.orderinglist import ordering_list
 from sqlalchemy.orm import Session
 from sqlalchemy.orm import relationship
@@ -17,6 +17,8 @@ from crew_brief.model.mixin import NonEmptyStringMixin
 from crew_brief.model.mixin import TimestampMixin
 from crew_brief.util import load_from_path
 
+from .scraper_step import ScraperStepTypeEnum
+
 class Scraper(
     Base,
     ByMixin,
@@ -27,7 +29,10 @@ class Scraper(
     Object that scrapes files for data to produce LegIdentifier objects.
     """
 
-    human_description = 'Scrape filename with regexes until success and deserialize with schema.'
+    human_description = (
+        'Scrape filename with regexes until success'
+        ' and deserialize with schema.'
+    )
 
     __tablename__ = 'scraper'
 
@@ -44,32 +49,33 @@ class Scraper(
         nullable = True,
     )
 
-    steps = relationship(
+    _steps = relationship(
         'ScraperStep',
         back_populates = 'scraper',
         collection_class = ordering_list('position'),
         order_by = 'ScraperStep.position',
     )
 
-    @validates('steps')
-    def validate_steps(self, key, steps):
+    @hybrid_property
+    def steps(self):
+        return self._steps
+
+    @steps.setter
+    def steps(self, steps):
         """
         Validate scraper steps are ordered correctly.
         """
         # Raise for missing required types. Comparing model to enum member.
         for required_member in ScraperStepTypeEnum.__required__:
-            if not any(step.type == required_member for step in steps):
+            if not any(step.type_id == required_member for step in steps):
                 raise ValueError(
                     f'Required StepType {required_member} not found')
 
-        # Steps may not be sorted yet.
-        sorted_steps = sorted(steps, key=lambda step: step.position)
-
-        for step1, step2 in pairwise(sorted_steps):
+        for step1, step2 in pairwise(steps):
             if step2.step_type.member < step1.step_type.member:
                 raise ValueError(f'{step1} must come before {step2}')
 
-        return steps
+        self._steps = steps
 
     regexes = relationship(
         'Regex',

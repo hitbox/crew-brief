@@ -3,17 +3,19 @@ import sqlalchemy as sa
 from flask import request
 from flask import url_for
 
+model_blueprint_name = 'admin'
+
 def edit_endpoint(model):
-    return f'model.{model.__tablename__}.edit'
+    return f'{model_blueprint_name}.{model.__tablename__}.edit'
 
 def table_endpoint(model):
-    return f'model.{model.__tablename__}.table'
+    return f'{model_blueprint_name}.{model.__tablename__}.table'
 
 def instance_endpoint(model):
-    return f'model.{model.__tablename__}.instance'
+    return f'{model_blueprint_name}.{model.__tablename__}.instance'
 
 def new_endpoint(model):
-    return f'model.{model.__tablename__}.new'
+    return f'{model_blueprint_name}.{model.__tablename__}.new'
 
 def get_pk_dict(instance):
     mapper = sa.inspect(instance.__class__)

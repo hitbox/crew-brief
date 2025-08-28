@@ -8,6 +8,12 @@ from .definition_list import DefinitionKey
 from .definition_list import DefinitionList
 
 def unordered_list(iterable, ul_attrs=None, li_attrs=None):
+    if ul_attrs is None:
+        ul_attrs = {}
+
+    if li_attrs is None:
+        li_attrs = {}
+
     ul = render_tag('ul', attrs=ul_attrs)
     html_list = [ul]
 

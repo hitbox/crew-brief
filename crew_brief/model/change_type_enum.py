@@ -1,8 +1,6 @@
 from enum import IntEnum
 
-from .base import DatabaseEnumMeta
-
-class ChangeTypeEnum(IntEnum, metaclass=DatabaseEnumMeta):
+class ChangeTypeEnum(IntEnum):
     """
     ChangeType object for use on the Python side.
     """
@@ -35,3 +33,12 @@ class ChangeTypeEnum(IntEnum, metaclass=DatabaseEnumMeta):
             id = self.value,
             name = self.name,
         )
+
+    @property
+    def description(self):
+        if self is ChangeTypeEnum.INSERT:
+            return 'New record created in source table.'
+        elif self is ChangeTypeEnum.UPDATE:
+            return 'One or more fields changed in source table.'
+        elif self is ChangeTypeEnum.DELETE:
+            return 'Record deleted in source table.'

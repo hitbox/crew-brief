@@ -17,18 +17,21 @@ class PathFlavorEnum(IntEnum):
     """
     Enumerate common path flavors with associated module for manipulating them.
     """
+
+    __model__ = 'PathFlavor'
+
     auto = 1
     posix = 2
     nt = 3
 
     @property
     def module(self):
-        if self is PathFlavor.auto:
-            self.module = os.path
-        elif self is PathFlavor.posix:
-            self.module = posixpath
-        elif self is PathFlavor.nt:
-            self.module = ntpath
+        if self is PathFlavorEnum.auto:
+            return os.path
+        elif self is PathFlavorEnum.posix:
+            return posixpath
+        elif self is PathFlavorEnum.nt:
+            return ntpath
 
     def instance(self, session):
         return session.get(PathFlavor, ident=self.value)

@@ -9,8 +9,8 @@ from wtforms import StringField
 from wtforms import SubmitField
 from wtforms_sqlalchemy.fields import QuerySelectMultipleField
 
-from crew_brief.model import AttributeSort
 from crew_brief.util import is_foreign_key
+from web.attribute_sort import AttributeSort
 from web.extension import db
 
 from .field import DynamicSelectField

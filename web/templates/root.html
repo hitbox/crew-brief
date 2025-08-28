@@ -85,13 +85,5 @@
                 </ul>
             </nav>
         </div>
-        <div class="card">
-            <h2>Database Objects</h2>
-            <nav>
-                <ul>{% for class_name, model in model_names %}
-                    <li><a href="{{ url_for('model.' + model.__tablename__ + '.table') }}">{{ class_name }}</a></li>{% endfor %}
-                </ul>
-            </nav>
-        </div>
     </div>
 {% endblock %}

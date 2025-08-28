@@ -2,6 +2,7 @@ import sqlalchemy as sa
 
 from flask import Blueprint
 from flask import render_template
+from flask import url_for
 from markupsafe import Markup
 
 from crew_brief.model import LegFile
@@ -26,18 +27,15 @@ def root():
     """
     Root view. List of objects to browse.
     """
-    model_names = list(get_models().items())
-
-    total_files = db.session.scalar(sa.select(sa.func.count()).select_from(LegFile))
-
-    unparsed_count = db.session.scalar(
-        sa.select(sa.func.count())
-        .select_from(LegFile)
-        .where(LegFile.leg_identifier_id == None)
-    )
+    database_objects = []
+    for class_name, model in get_models().items():
+        database_objects.append({
+            'href': url_for(f'admin.{model.__tablename__}.table'),
+            'text': class_name,
+        })
 
     context = {
-        'model_names': model_names,
+        'database_objects': database_objects,
         'stats': file_stats(db.session),
         'stats_table': stats_table,
     }

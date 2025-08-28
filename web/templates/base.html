@@ -39,10 +39,15 @@
         {% endif %}
     {% endwith %}
     <main>
-        {% block topnav %}{% if breadcrumbs %}<nav>
+        <nav class="nav-bar">
+            <ul>{% for link in navigation_list %}
+                <li><a href="{{ link.href }}">{{ link.text }}</a></li>{% endfor %}
+            </ul>
+        </nav>
+        {% block topnav %}{#{% if breadcrumbs %}<nav>
             <ul class="nice-list">{% for href, text in breadcrumbs %}
             <li><a href="{{ href }}">{{ text }}</a></li>{% endfor %}
-        </ul></nav>{% endif %}{% endblock topnav %}
+        </ul></nav>{% endif %}#}{% endblock topnav %}
         {% if subtitle %}<h2>{{ subtitle }}</h2>{% endif %}
         {% if description %}<p>{{ description }}</p>{% endif %}
         {% block content %}{% endblock %}

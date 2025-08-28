@@ -2,7 +2,6 @@
 
 
 {% block content %}
-    <a href="{{ url_for('core.root') }}">Back to root</a>
     {% if page_title %}{{ page_title }}{% endif %}
     <form class="nice-form" method="post" action="{{ url_for(request.endpoint, **request.view_args) }}">
         {{ form.hidden_tag() }}

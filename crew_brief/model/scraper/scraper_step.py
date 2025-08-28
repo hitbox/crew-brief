@@ -1,23 +1,23 @@
 from enum import IntEnum
 
+import sqlalchemy as sa
+
 from sqlalchemy import Column
 from sqlalchemy import ForeignKey
 from sqlalchemy import Integer
 from sqlalchemy import String
-from sqlalchemy import Text
 from sqlalchemy.orm import relationship
 
 from crew_brief.model.base import Base
-from crew_brief.model.mixin import ByMixin
 from crew_brief.model.mixin import NonEmptyStringMixin
-from crew_brief.model.mixin import TimestampMixin
-from crew_brief.util import load_from_path
 
 class ScraperStepTypeEnum(IntEnum):
     """
-    Type of scraper step. Values are used to enforce the relative ordering of
-    the steps.
+    Polymorphic identity of a ScraperStep subclass. Values are used to enforce
+    the relative ordering of the steps.
     """
+
+    __model__ = 'ScraperStepType'
 
     # Parse filename.
     REGEX = 1
@@ -31,7 +31,29 @@ class ScraperStepTypeEnum(IntEnum):
     # Create and object from deserialized data.
     OBJECT = 4
 
+    # Parent Scraper class uses this to enforce required steps.
     __required__ = (REGEX, SCHEMA, OBJECT)
+
+    @property
+    def description(self):
+        if self is ScraperStepTypeEnum.REGEX:
+            return 'Capture group regex to scrape path.'
+        elif self is ScraperStepTypeEnum.FUNCTION:
+            return (
+                'Callable that updates the result'
+                ' of groupdict from the REGEX step.'
+            )
+        elif self is ScraperStepTypeEnum.SCHEMA:
+            return (
+                'Schema object with .load method to deserialize scraped data.'
+            )
+        elif self is ScraperStepTypeEnum.OBJECT:
+            return 'Step to create object from deserialized data.'
+
+    def get_instance(self, session):
+        model = eval(self.__model__)
+        stmt = sa.select(model).where(model.id == self)
+        return session.scalars(stmt).one()
 
 
 class ScraperStepType(Base):
@@ -45,7 +67,9 @@ class ScraperStepType(Base):
 
     id = Column(Integer, primary_key=True)
 
-    name = Column(String, nullable=False)
+    name = Column(String, nullable=False, unique=True)
+
+    description = Column(String, nullable=False)
 
     @classmethod
     def instances_from_enum(cls):
@@ -63,8 +87,7 @@ class ScraperStepType(Base):
 
 class ScraperStep(Base):
     """
-    One step in the scraping process whereby a LegIdentifier is created from a
-    LegFile path.
+    Base polymorphic class for scraper steps.
     """
 
     __tablename__ = 'scraper_step'
@@ -75,7 +98,7 @@ class ScraperStep(Base):
 
     scraper = relationship(
         'Scraper',
-        back_populates = 'steps',
+        back_populates = '_steps',
     )
 
     position = Column(Integer, nullable=False)
@@ -113,6 +136,9 @@ class RegexStep(ScraperStep):
 
     regex = relationship('Regex')
 
+    def __html__(self):
+        return self.regex.name
+
 
 class FunctionStep(ScraperStep):
     """
@@ -128,6 +154,9 @@ class FunctionStep(ScraperStep):
     id = Column(Integer, ForeignKey('scraper_step.id'), primary_key=True)
 
     function_name = Column(String)
+
+    def __html__(self):
+        return self.function_name
 
 
 class SchemaStep(ScraperStep):
@@ -147,38 +176,8 @@ class SchemaStep(ScraperStep):
 
     schema_object = relationship('Schema')
 
-
-class ObjectCreatorEnum(IntEnum):
-    """
-    Enumerate the object creators for Python-to-dabase link.
-    """
-
-    LEG_IDENTIFIER = 1
-
-    @property
-    def callable(self):
-        from crew_brief.model import LegIdentifier
-
-        if self == ObjectCreatorEnum.LEG_IDENTIFIER:
-            return LegIdentifier.from_data
-
-
-class ObjectCreator(NonEmptyStringMixin, Base):
-    """
-    ObjectCreatorEnum mapped directly to database.
-    """
-
-    __tablename__ = 'object_creator'
-
-    __enum__ = ObjectCreatorEnum
-
-    id = Column(Integer, primary_key=True)
-
-    name = Column(String, nullable=False)
-
-    @property
-    def member(self):
-        return self.__enum__(self.id)
+    def __html__(self):
+        return self.schema_object.name
 
 
 class ObjectStep(ScraperStep):
@@ -192,7 +191,11 @@ class ObjectStep(ScraperStep):
         'polymorphic_identity': ScraperStepTypeEnum.OBJECT,
     }
 
-    id = Column(Integer, ForeignKey('scraper_step.id'), primary_key=True)
+    id = Column(
+        Integer,
+        ForeignKey('scraper_step.id'),
+        primary_key = True,
+    )
 
     creator_id = Column(
         Integer,
@@ -210,3 +213,8 @@ class ObjectStep(ScraperStep):
         Callable to create database object.
         """
         return self.creator_object.member.callable
+
+    def __html__(self):
+        # XXX:
+        # - Ok, these __html__ things work but it feels off.
+        return self.creator_object.name

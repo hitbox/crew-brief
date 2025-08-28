@@ -5,6 +5,27 @@ from crew_brief.util import model_attributes
 from htmlkit.core import render_tag
 from htmlkit.core import unordered_list
 
+class Table:
+    """
+    HTML Table that basically holds the columns and provides way to iterate them.
+    """
+
+    def __init__(self, columns):
+        self.columns = columns
+
+    def render_thead(self):
+        html = []
+        for column in self.columns:
+            html.append(column.render_th())
+        return Markup(''.join(html))
+
+    def render_tr(self, obj):
+        html = []
+        for column in self.columns:
+            html.append(column.render_td(obj))
+        return Markup(''.join(html))
+
+
 class Column:
     """
     Column of an html table. Holds the attribute name (key) that should be
@@ -34,27 +55,6 @@ class Column:
             value = self.formatter(obj, value)
 
         return Markup(value)
-
-
-class Table:
-    """
-    HTML Table that basically holds the columns and provides way to iterate them.
-    """
-
-    def __init__(self, columns):
-        self.columns = columns
-
-    def render_thead(self):
-        html = []
-        for column in self.columns:
-            html.append(column.render_th())
-        return Markup(''.join(html))
-
-    def render_tr(self, obj):
-        html = []
-        for column in self.columns:
-            html.append(column.render_td(obj))
-        return Markup(''.join(html))
 
 
 def get_formatter(attr):

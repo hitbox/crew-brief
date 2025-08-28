@@ -1,7 +1,3 @@
-from copy import deepcopy
-
-import sqlalchemy as sa
-
 from flask import render_template
 from flask.views import View
 
@@ -9,7 +5,7 @@ from web.extension import db
 
 class TableView(View):
     """
-    Class-based view to list objects in a table.
+    Class-based view to list objects in a table from the database.
     """
 
     def __init__(

@@ -7,6 +7,7 @@ marshmallow
 openpyxl
 pdfplumber
 psycopg[binary]
+python-dotenv
 pywin32; sys_platform == 'win32'
 sqlalchemy
 waitress

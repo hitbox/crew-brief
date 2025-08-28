@@ -62,6 +62,7 @@ def model_attributes(
     include_pk = False,
     include_fk = False,
     include_relationships = False,
+    ignore_private = False,
 ):
     """
     Natural attribute order optionally sorted by info dict.
@@ -70,7 +71,7 @@ def model_attributes(
     keys = []
 
     for name, attr in model.__dict__.items():
-        if name.startswith('_'):
+        if ignore_private and name.startswith('_'):
             continue
         if isinstance(attr, property):
             keys.append(name)
